@@ -7,7 +7,12 @@ rather than silently mismatched columns.
 
 import polars as pl
 
-EVENTS_SCHEMA: dict[str, pl.PolarsDataType] = {
+# polars has no public name for "a dtype, either as a class (pl.Int32) or an
+# instance (pl.Categorical())" -- polars._typing.PolarsDataType is that, but
+# it is a private module. This is its public equivalent.
+_PolarsDataType = pl.DataType | type[pl.DataType]
+
+EVENTS_SCHEMA: dict[str, _PolarsDataType] = {
     "EventUID": pl.Int32,
     "MatchID": pl.Int32,
     "EventName": pl.String,
@@ -19,7 +24,7 @@ EVENTS_SCHEMA: dict[str, pl.PolarsDataType] = {
     "FilePath": pl.String,
 }
 
-DEALS_SCHEMA: dict[str, pl.PolarsDataType] = {
+DEALS_SCHEMA: dict[str, _PolarsDataType] = {
     "DealUID": pl.Int32,
     "HandUID": pl.Int32,
     "EventUID": pl.Int32,
@@ -42,7 +47,7 @@ _SEATS = ("N", "E", "S", "W")
 _DD_SEATS = ("W", "N", "E", "S")
 _DD_STRAINS = ("N", "S", "H", "D", "C")
 
-HANDS_SCHEMA: dict[str, pl.PolarsDataType] = {
+HANDS_SCHEMA: dict[str, _PolarsDataType] = {
     "HandUID": pl.Int32,
     "Dealer": pl.Categorical(),
     "Vulnerability": pl.Categorical(),
@@ -67,7 +72,7 @@ for _seat in _DD_SEATS:
 HANDS_SCHEMA["ParScoreNS"] = pl.Int16
 HANDS_SCHEMA["ParContracts"] = pl.String
 
-BOARDS_SCHEMA: dict[str, pl.PolarsDataType] = {
+BOARDS_SCHEMA: dict[str, _PolarsDataType] = {
     "BoardUID": pl.Int32,
     "DealUID": pl.Int32,
     # Confirmed free-text in the wild (a real row held a full match
