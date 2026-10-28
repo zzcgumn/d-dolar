@@ -8,14 +8,14 @@ version = "0.1.0"
 description = "D-dolar and related double-dummy-based defence statistics for bridge"
 readme = "README.md"
 license = "Apache-2.0"
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11"
 authors = [{ name = "Martin Nygren", email = "m@rtin.nygren.me.uk" }]
 classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
 ]
-dependencies = ["polars>=1.0.0", "endplay>=0.5.12"]
+dependencies = ["polars>=1.0.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
@@ -34,3 +34,9 @@ src = ["src", "tests"]
 python_version = "3.11"
 packages = ["d_dolar"]
 strict = true
+
+# dds3 is a locally-built C extension (see specs/dds3-dependency.md) with
+# no type stubs or py.typed marker of its own.
+[[tool.mypy.overrides]]
+module = "dds3"
+ignore_missing_imports = true

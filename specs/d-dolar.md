@@ -32,30 +32,28 @@ notrump), ignoring any doubling annotation after it.
 
 ### How it is computed
 
-Via `endplay.dds.analyse_play` (`endplay`, a PyPI package that vendors
-its own build of DDS — currently 2.9.0, independent of the `DD_<seat>_
-<strain>` figures already in `hands.csv`, which come from
-`bridge-deals-ingest`'s own `endplay` call). `analyse_play(deal, [lead])`
-returns the double-dummy trick count for declarer's side both before and
-after the lead is played; the lead is optimal exactly when those two
-numbers are equal. This is a position-specific double-dummy solve — not
-derivable from `hands.csv`'s whole-table `DD_<seat>_<strain>` columns
-alone, which only give the result *before* anything is played.
+Via `dds3.analyse_play_pbn` (see `specs/dds3-dependency.md`) — DDS's own
+first-party Python module, vendored as a git submodule at tag `v3.1.1`
+and built with Bazel, independent of the `DD_<seat>_<strain>` figures
+already in `hands.csv` (which come from `bridge-deals-ingest`'s own
+`endplay`/DDS 2.9.0 call). `analyse_play_pbn(hands, play=lead,
+trump=..., first=...)` returns the double-dummy trick count for
+declarer's side both before and after the lead is played (`result["tricks"]`,
+a 2-element list for a single-card `play`); the lead is optimal exactly
+when those two numbers are equal. This is a position-specific
+double-dummy solve — not derivable from `hands.csv`'s whole-table
+`DD_<seat>_<strain>` columns alone, which only give the result *before*
+anything is played.
 
-A heavier option — vendoring `dds-bridge/dds` itself (tag `v3.1.1`) as a
-git submodule, built with Bazel, for its own first-party `dds3` Python
-module — was drafted (`plans/add-dds3-dependency.md`) and deliberately
-deferred: `endplay` already does the job with a plain pip dependency, no
-new build toolchain. Revisit that plan only if real evidence (a
-correctness mismatch, a missing capability, or a performance problem)
-shows `endplay`/DDS 2.9.0 insufficient.
-
-**A known rough edge, worked around rather than fixed upstream**:
-`endplay`'s own `SolvedPlay.__getitem__` mishandles negative indices
-(`len(self) - i` instead of `len(self) + i`), so `result[-1]` raises
-`IndexError` instead of returning the last element.
-`d_dolar.statistics.d_dolar` avoids this by materializing
-`analyse_play`'s result to a plain list and indexing forward from it.
+This package originally used `endplay` (a PyPI package that vendors its
+own, older build of DDS — 2.9.0) for this, since it was a plain pip
+dependency with no new build toolchain. Switched to `dds3` once this
+statistic's actual need — the trick count at a specific point *after*
+a card is played, not just the whole-table result — turned out to be
+exactly the evidence `plans/add-dds3-dependency.md` had said to wait
+for. Cross-checked directly against the same real boards this statistic
+was first tested against: both DDS builds agree exactly (see
+`tests/statistics/test_d_dolar.py`'s fixture-based cases).
 
 ## Out of scope
 

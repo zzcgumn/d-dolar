@@ -1,26 +1,16 @@
 """The D-dolar base statistic: was a board's opening lead double-dummy optimal."""
 
-from endplay.dds import analyse_play
-from endplay.types import Deal, Denom, Player
+from dds3 import analyse_play_pbn
 
 # The opening leader is the defender to declarer's left: the next seat
 # clockwise in the standard N -> E -> S -> W -> N rotation.
 _LEADER_OF = {"N": "E", "E": "S", "S": "W", "W": "N"}
 
-_STRAIN_TO_DENOM = {
-    "S": Denom.spades,
-    "H": Denom.hearts,
-    "D": Denom.diamonds,
-    "C": Denom.clubs,
-    "N": Denom.nt,
-}
+# dds3's trump encoding: 0=S 1=H 2=D 3=C 4=NT.
+_STRAIN_TO_TRUMP = {"S": 0, "H": 1, "D": 2, "C": 3, "N": 4}
 
-_SEAT_TO_PLAYER = {
-    "N": Player.north,
-    "E": Player.east,
-    "S": Player.south,
-    "W": Player.west,
-}
+# dds3's seat encoding: 0=N 1=E 2=S 3=W.
+_SEAT_TO_FIRST = {"N": 0, "E": 1, "S": 2, "W": 3}
 
 
 def d_dolar_base(hands: str, declarer: str | None, contract: str | None, lead: str | None) -> int | None:
@@ -35,12 +25,9 @@ def d_dolar_base(hands: str, declarer: str | None, contract: str | None, lead: s
     if not declarer or not contract or not lead:
         return None
 
-    deal = Deal.from_pbn(hands)
-    deal.trump = _STRAIN_TO_DENOM[contract[1]]
-    deal.first = _SEAT_TO_PLAYER[_LEADER_OF[declarer]]
+    trump = _STRAIN_TO_TRUMP[contract[1]]
+    first = _SEAT_TO_FIRST[_LEADER_OF[declarer]]
 
-    # SolvedPlay.__getitem__ mishandles negative indices (a bug in endplay
-    # itself: `len(self) - i` instead of `len(self) + i`), so index forward
-    # from a materialized list rather than risk relying on `[-1]`.
-    before_lead, after_lead = list(analyse_play(deal, [lead]))
+    result = analyse_play_pbn(hands, play=lead, trump=trump, first=first)
+    before_lead, after_lead = result["tricks"]
     return 1 if after_lead == before_lead else 0

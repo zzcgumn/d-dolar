@@ -13,7 +13,7 @@ def test_optimal_lead_returns_one() -> None:
     from d_dolar.statistics.d_dolar import d_dolar_base
 
     # BoardUID 1499299: Declarer=W, Contract=6C, Lead=D5; DD_W_C=12 and the
-    # lead keeps declarer at exactly 12 (confirmed with endplay.dds.analyse_play).
+    # lead keeps declarer at exactly 12 (confirmed with dds3.analyse_play_pbn).
     board = _row("boards.csv", "BoardUID", "1499299")
     hand = _row("hands.csv", "HandUID", "215330")
     assert d_dolar_base(hand["Hands"], board["Declarer"], board["Contract"], board["Lead"]) == 1

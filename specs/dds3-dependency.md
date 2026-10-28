@@ -58,9 +58,12 @@ the pinned commit), not d-dolar's to repeat.
 
 ## Out of scope
 
-- Implementing D-dolar or either of the other two statistics with
-  `dds3` — this package only gets the dependency built and callable.
-- A d_dolar-side convenience wrapper around `dds3`'s PBN/bitmask API.
+- A d_dolar-side convenience wrapper around `dds3`'s PBN/bitmask API —
+  `d_dolar.statistics.d_dolar.d_dolar_base` (see `specs/d-dolar.md`) calls
+  `analyse_play_pbn` directly with its native trump/seat integer
+  encoding; nothing here translates it.
+- The other two sibling defence statistics, if and when they also need
+  `dds3` — each gets its own spec update when it does.
 - Windows support (`dds3`'s own Python build is not officially supported
   there, per its `docs/python_interface.md`).
 
