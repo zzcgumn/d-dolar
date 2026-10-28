@@ -1,0 +1,6 @@
+EventUID,MatchID,EventName,MatchName,EventLocation,MatchDate,ScoringForm,Tables,FilePath
+966,105,Vanderbilt 2016: 2016 Spring NABC,Vanderbilt2016: Grabel vs Hollman: Round KO64: Session 1: Session 1,"Kansas City, USA",2016-03-16,IMPs,2,..\RawHands\JSON\ACBL\2016\Vanderbilt2016.json
+969,749,Venice Cup 2022: 45th World Teams Championships,VeniceCup2022: ITALY vs CANADA: Round Round Robin: Section 18: Session 1: Session 1,"Salsomaggiore, Italy",2022-04-02,IMPs,2,..\RawHands\JSON\WBF\2022\VeniceCup2022.json
+1017,1828,d'Orsi Trophy 2023: 46th World Teams Championships,dOrsiTrophy2023: DENMARK vs ITALY: Round Quarterfinal: Section 1: Session 1: Session 2: Session 2,"Marrakech, Morocco",2023-08-28,IMPs,2,..\RawHands\JSON\WBF\2023\dOrsiTrophy2023.json
+286,816,Budapest MP Championship 2024/2025,Division I/B | Session 4/8,Budapest,2025-01-07,MPs,16,results/recent\mbsz_3015707_4_1.csv
+251,47,BBO4-2023WYTC,75892: U21-RR10: USA2 vs JAPAN,,,IMPs,2,..\RawHands\LIN\postpan2\75892.lin
