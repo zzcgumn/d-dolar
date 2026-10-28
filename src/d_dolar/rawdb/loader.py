@@ -23,7 +23,11 @@ def load_hands(rawdb_dir: Path) -> pl.LazyFrame:
 
 
 def load_boards(rawdb_dir: Path) -> pl.LazyFrame:
-    return pl.scan_csv(rawdb_dir / "boards.csv", schema=BOARDS_SCHEMA, null_values=[""])
+    # Play's "" means "not recorded" per the source format itself, not
+    # "unknown" -- unlike every other column, it must never become null.
+    return pl.scan_csv(rawdb_dir / "boards.csv", schema=BOARDS_SCHEMA, null_values=[""]).with_columns(
+        pl.col("Play").fill_null("")
+    )
 
 
 def load_joined_boards(rawdb_dir: Path) -> pl.LazyFrame:

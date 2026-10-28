@@ -39,6 +39,17 @@ def test_load_boards_returns_expected_rows() -> None:
     assert row["TricksMade"] == 12
 
 
+def test_load_boards_keeps_empty_play_as_empty_string_not_null() -> None:
+    from d_dolar.rawdb.loader import load_boards
+
+    df = load_boards(FIXTURES).collect()
+    row = df.filter(pl.col("BoardUID") == 1499299).row(0, named=True)
+    assert row["Play"] == ""
+    # Lead is a different column and has no such exception: empty means null.
+    row = df.filter(pl.col("BoardUID") == 946801).row(0, named=True)
+    assert row["Lead"] is None
+
+
 def test_load_joined_boards_joins_on_expected_keys() -> None:
     from d_dolar.rawdb.loader import load_joined_boards
 
