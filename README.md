@@ -28,3 +28,15 @@ pip install -e ".[dev]"
 ```
 pytest
 ```
+
+## Optional: building dds3
+
+Some statistics need `dds3`, a vendored, Bazel-built DDS module (see
+[`docs/dds3_build.md`](docs/dds3_build.md)). Not required for
+`pip install -e ".[dev]"` or `pytest` — those work without it; code that
+needs `dds3` skips its own tests cleanly when it isn't built.
+
+```bash
+git submodule update --init third_party/dds
+./scripts/build_dds3.sh
+```
