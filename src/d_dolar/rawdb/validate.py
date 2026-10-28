@@ -3,6 +3,8 @@ import polars as pl
 DD_COLUMNS = [f"DD_{seat}_{strain}" for seat in "WNES" for strain in "NSHDC"]
 SEATS = ("N", "E", "S", "W")
 SUITS = ("S", "H", "D", "C")
+VULNERABILITIES = ("Z", "N", "E", "B", "X")
+COMPASS_DIRECTIONS = ("N", "E", "S", "W")
 
 
 def check_invariants(
@@ -61,5 +63,27 @@ def check_invariants(
     orphans = deals.join(events.select("EventUID", "MatchID"), on=["EventUID", "MatchID"], how="anti")
     if orphans.height:
         violations.append(f"{orphans.height} deals row(s) reference an (EventUID, MatchID) not in events")
+
+    for table_name, table, col in (
+        ("deals", deals, "Vulnerability"),
+        ("hands", hands, "Vulnerability"),
+    ):
+        bad = table.filter(~pl.col(col).cast(pl.String).is_in(VULNERABILITIES))
+        if bad.height:
+            violations.append(f"{table_name}.{col} outside {VULNERABILITIES} in {bad.height} row(s)")
+
+    for table_name, table, col in (
+        ("deals", deals, "Dealer"),
+        ("hands", hands, "Dealer"),
+    ):
+        bad = table.filter(~pl.col(col).cast(pl.String).is_in(COMPASS_DIRECTIONS))
+        if bad.height:
+            violations.append(f"{table_name}.{col} outside {COMPASS_DIRECTIONS} in {bad.height} row(s)")
+
+    bad = boards.filter(
+        ~pl.col("Declarer").cast(pl.String).is_in(COMPASS_DIRECTIONS) & pl.col("Declarer").is_not_null()
+    )
+    if bad.height:
+        violations.append(f"boards.Declarer outside {COMPASS_DIRECTIONS} in {bad.height} row(s)")
 
     return violations

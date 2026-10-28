@@ -68,11 +68,21 @@ function exists to surface. It returns a list of violation descriptions
 - every `boards.DealUID` exists in `deals.DealUID`, `deals.HandUID` exists
   in `hands.HandUID`, and `deals.(EventUID, MatchID)` exists in
   `events.(EventUID, MatchID)`
+- `deals.Vulnerability` and `hands.Vulnerability` are each one of
+  `Z`/`N`/`E`/`B`/`X`; `deals.Dealer` and `hands.Dealer` are each one of
+  `N`/`E`/`S`/`W`; `boards.Declarer` is one of `N`/`E`/`S`/`W` or null
 
 It deliberately does **not** check that `Declarer` is empty whenever
 `Contract == "AP"` — real RawDB data violates that about as often as not
 (a source quirk, confirmed by scanning the full `boards.csv`: 629 all-pass
 boards with `Declarer` filled in against 642 with it empty).
+
+**A known real-data violation**: running `check_invariants` against the
+full RawDB directory reports exactly one violation — 3 `boards.csv` rows
+(`BoardUID` 990946, 1229835, 1229838, all `Contract == "AP"`) have
+`Declarer == "s"` (lowercase), outside the `N`/`E`/`S`/`W` domain. This is
+a genuine upstream data defect, not a bug in this package; `d_dolar.rawdb`
+does not correct it.
 
 ### Null semantics
 

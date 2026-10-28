@@ -145,3 +145,54 @@ def test_detects_orphaned_event_uid(
     )
     violations = check_invariants(events, deals, hands, boards)
     assert any("EventUID" in v for v in violations)
+
+
+def test_detects_vulnerability_outside_known_domain(
+    frames: tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame, pl.DataFrame],
+) -> None:
+    from d_dolar.rawdb.validate import check_invariants
+
+    events, deals, hands, boards = frames
+    deals = deals.with_columns(
+        pl.when(pl.col("DealUID") == 637157)
+        .then(pl.lit("Q"))
+        .otherwise(pl.col("Vulnerability").cast(pl.String))
+        .cast(pl.Categorical())
+        .alias("Vulnerability")
+    )
+    violations = check_invariants(events, deals, hands, boards)
+    assert any("Vulnerability" in v for v in violations)
+
+
+def test_detects_dealer_outside_known_domain(
+    frames: tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame, pl.DataFrame],
+) -> None:
+    from d_dolar.rawdb.validate import check_invariants
+
+    events, deals, hands, boards = frames
+    hands = hands.with_columns(
+        pl.when(pl.col("HandUID") == 215330)
+        .then(pl.lit("Q"))
+        .otherwise(pl.col("Dealer").cast(pl.String))
+        .cast(pl.Categorical())
+        .alias("Dealer")
+    )
+    violations = check_invariants(events, deals, hands, boards)
+    assert any("Dealer" in v for v in violations)
+
+
+def test_detects_declarer_outside_known_domain(
+    frames: tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame, pl.DataFrame],
+) -> None:
+    from d_dolar.rawdb.validate import check_invariants
+
+    events, deals, hands, boards = frames
+    boards = boards.with_columns(
+        pl.when(pl.col("BoardUID") == 1400200)
+        .then(pl.lit("s"))
+        .otherwise(pl.col("Declarer").cast(pl.String))
+        .cast(pl.Categorical())
+        .alias("Declarer")
+    )
+    violations = check_invariants(events, deals, hands, boards)
+    assert any("Declarer" in v for v in violations)
