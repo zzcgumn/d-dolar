@@ -24,10 +24,14 @@ asserts they agree rather than silently keeping one.
 
 **`DD_<seat>_<strain>`** (`hands.csv` only, 20 columns, seats `W N E S` ×
 strains `N S H D C`, `N` meaning notrump): tricks for `<seat>` declaring
-`<strain>`, computed by `endplay.dds.calc_all_tables`. By the double-dummy
-identity, `DD_N_x == DD_S_x` and `DD_E_x == DD_W_x` for every strain `x` —
-a partnership's double-dummy trick count does not depend on which partner
-is nominally declarer.
+`<strain>`, computed by `endplay.dds.calc_all_tables`. A partnership's two
+members are often, but **not reliably**, equal here (`DD_N_x == DD_S_x`,
+`DD_E_x == DD_W_x`) — do not treat this as an invariant. Checked against
+the full RawDB `hands.csv`: 24.3% of hands have at least one strain where
+`DD_N_x != DD_S_x`, 24.2% have at least one strain where `DD_E_x !=
+DD_W_x`, and 42.4% have at least one such mismatch on either side —
+nowhere near rare enough to be a computational edge case. `check_invariants`
+does not enforce this identity.
 
 **`DDS`** (`deals.csv` only): an *unrelated*, unreliable column — **do not
 confuse it with `DD_<seat>_<strain>`**. It is the literal `DDS` field
