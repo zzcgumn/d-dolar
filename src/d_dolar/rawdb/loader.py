@@ -24,3 +24,30 @@ def load_hands(rawdb_dir: Path) -> pl.LazyFrame:
 
 def load_boards(rawdb_dir: Path) -> pl.LazyFrame:
     return pl.scan_csv(rawdb_dir / "boards.csv", schema=BOARDS_SCHEMA, null_values=[""])
+
+
+def load_joined_boards(rawdb_dir: Path) -> pl.LazyFrame:
+    """boards ⋈ deals (DealUID) ⋈ hands (HandUID) ⋈ events (EventUID, MatchID)."""
+    boards = load_boards(rawdb_dir)
+    deals = load_deals(rawdb_dir).rename({"Hands": "_deals_hands"})
+    hands = load_hands(rawdb_dir).rename({"Hands": "_hands_hands"})
+    events = load_events(rawdb_dir)
+
+    joined = (
+        boards.join(deals, on="DealUID", how="inner")
+        .join(hands, on="HandUID", how="inner")
+        .join(events, on=["EventUID", "MatchID"], how="inner")
+    )
+
+    mismatch_count = (
+        joined.filter(pl.col("_deals_hands") != pl.col("_hands_hands"))
+        .select(pl.len())
+        .collect()
+        .item()
+    )
+    if mismatch_count:
+        raise ValueError(
+            f"{mismatch_count} row(s) have a Hands mismatch between deals.csv and hands.csv"
+        )
+
+    return joined.rename({"_deals_hands": "Hands"}).drop("_hands_hands")

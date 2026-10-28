@@ -1,6 +1,8 @@
+import shutil
 from pathlib import Path
 
 import polars as pl
+import pytest
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -35,3 +37,33 @@ def test_load_boards_returns_expected_rows() -> None:
     row = df.filter(pl.col("BoardUID") == 1499299).row(0, named=True)
     assert row["RawScoreNS"] is None
     assert row["TricksMade"] == 12
+
+
+def test_load_joined_boards_joins_on_expected_keys() -> None:
+    from d_dolar.rawdb.loader import load_joined_boards
+
+    df = load_joined_boards(FIXTURES).collect()
+    assert df.height == 4
+    assert df.columns.count("Hands") == 1
+    assert "Hands_right" not in df.columns
+    for col in ("DD_W_N", "ParScoreNS", "ParContracts", "EventName", "MatchName"):
+        assert col in df.columns
+
+
+def test_load_joined_boards_raises_on_hands_mismatch(tmp_path: Path) -> None:
+    from d_dolar.rawdb.loader import load_joined_boards
+
+    for name in ("events.csv", "deals.csv", "hands.csv", "boards.csv"):
+        shutil.copy(FIXTURES / name, tmp_path / name)
+
+    hands = pl.read_csv(tmp_path / "hands.csv")
+    hands = hands.with_columns(
+        pl.when(pl.col("HandUID") == 215330)
+        .then(pl.lit("N:AKQJT98765432....."))
+        .otherwise(pl.col("Hands"))
+        .alias("Hands")
+    )
+    hands.write_csv(tmp_path / "hands.csv")
+
+    with pytest.raises(ValueError, match="Hands"):
+        load_joined_boards(tmp_path).collect()
