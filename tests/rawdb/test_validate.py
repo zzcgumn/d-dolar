@@ -129,3 +129,19 @@ def test_detects_orphaned_hand_uid(
     )
     violations = check_invariants(events, deals, hands, boards)
     assert any("HandUID" in v for v in violations)
+
+
+def test_detects_orphaned_event_uid(
+    frames: tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame, pl.DataFrame],
+) -> None:
+    from d_dolar.rawdb.validate import check_invariants
+
+    events, deals, hands, boards = frames
+    deals = deals.with_columns(
+        pl.when(pl.col("DealUID") == 637157)
+        .then(999999999)
+        .otherwise(pl.col("EventUID"))
+        .alias("EventUID")
+    )
+    violations = check_invariants(events, deals, hands, boards)
+    assert any("EventUID" in v for v in violations)

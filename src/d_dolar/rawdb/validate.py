@@ -58,4 +58,8 @@ def check_invariants(
     if orphans.height:
         violations.append(f"{orphans.height} deals row(s) reference a HandUID not in hands")
 
+    orphans = deals.join(events.select("EventUID", "MatchID"), on=["EventUID", "MatchID"], how="anti")
+    if orphans.height:
+        violations.append(f"{orphans.height} deals row(s) reference an (EventUID, MatchID) not in events")
+
     return violations

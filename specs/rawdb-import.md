@@ -65,8 +65,9 @@ function exists to surface. It returns a list of violation descriptions
 - each seat's 4 suit lengths sum to 13, and each suit's 4 seat-lengths
   also sum to 13
 - `BoardUID`, `DealUID`, `HandUID` are each unique within their own table
-- every `boards.DealUID` exists in `deals.DealUID`, and every
-  `deals.HandUID` exists in `hands.HandUID`
+- every `boards.DealUID` exists in `deals.DealUID`, `deals.HandUID` exists
+  in `hands.HandUID`, and `deals.(EventUID, MatchID)` exists in
+  `events.(EventUID, MatchID)`
 
 It deliberately does **not** check that `Declarer` is empty whenever
 `Contract == "AP"` — real RawDB data violates that about as often as not
