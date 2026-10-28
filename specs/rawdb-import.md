@@ -22,11 +22,17 @@ column-by-column reference; this document is the *why*, that one is the
 | `events.csv` | yes | metadata only — event/match names, location, date |
 | `all.csv` | no | a denormalized join of the above three plus validation flags; everything in it is derivable from them |
 | `RawData.csv` | no | pre-dedup raw ingest; no `UID`s, no double-dummy data |
-| `ProcessedBoards.csv` | no | adds derived/validated auction columns, but drops boards with an unparseable auction — the wrong default for an import layer, which must not silently lose boards |
+| `ProcessedBoards.csv` | no | a 1:1 enrichment of `boards.csv` adding derived/validated auction columns (verified: both have exactly 1,516,591 rows); not loaded because this package doesn't need those columns yet, not because of any row loss |
 | `ProcessedDeals.csv` | no | `deals.csv` + `hands.csv`'s hand-derived columns, already joinable from the two files this package reads |
 
 Loading only `boards`+`deals`+`hands`+`events` reads roughly a fifth of a
-full RawDB directory's size, and keeps every board the other three files
+full RawDB directory's size.
+
+**A note on row counts**: `boards.csv` contains quoted fields (`Commentary`,
+`BiddingMD`) with embedded newlines, so `wc -l` overcounts it — it reports
+1,970,074 lines, but the true row count (confirmed with both Polars and
+Python's `csv` module) is 1,516,591. `deals.csv`, `hands.csv`, and
+`events.csv` have no such fields; `wc -l` is accurate for those.
 would have dropped.
 
 ### What `load_joined_boards` guarantees
