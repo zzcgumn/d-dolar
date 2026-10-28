@@ -8,14 +8,14 @@ version = "0.1.0"
 description = "D-dolar and related double-dummy-based defence statistics for bridge"
 readme = "README.md"
 license = "Apache-2.0"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 authors = [{ name = "Martin Nygren", email = "m@rtin.nygren.me.uk" }]
 classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
 ]
-dependencies = ["polars>=1.0.0"]
+dependencies = ["polars>=1.0.0", "endplay>=0.5.12"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]

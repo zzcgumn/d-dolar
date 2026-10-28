@@ -7,9 +7,7 @@ fact.
 
 - [`rawdb-import.md`](rawdb-import.md) — how a `bridge-deals-ingest` RawDB
   directory gets into a typed, validated Polars frame.
+- [`d-dolar.md`](d-dolar.md) — the D-dolar base statistic (opening-lead
+  optimality). The two sibling defence statistics are not written yet.
 - [`dds3-dependency.md`](dds3-dependency.md) — the vendored DDS 3.1.1
   Python module, how it's built, and what's guaranteed about it.
-
-D-dolar and the two sibling double-dummy-based defence statistics
-themselves are not written up yet (this branch doesn't yet have
-`calculate_d_dolar`'s `specs/d-dolar.md` merged in).
