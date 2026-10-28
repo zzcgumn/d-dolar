@@ -20,6 +20,8 @@ def test_clean_fixtures_exit_zero() -> None:
     assert result.returncode == 0, result.stdout + result.stderr
     assert "No invariant violations." in result.stdout
     assert "boards: 4 rows" in result.stdout
+    # 3 of the 4 fixture boards have no RawScoreNS.
+    assert "RawScoreNS: 75.0% null" in result.stdout
 
 
 def test_corrupted_fixtures_exit_nonzero(tmp_path: Path) -> None:

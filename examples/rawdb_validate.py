@@ -18,6 +18,10 @@ def main(rawdb_dir: Path) -> int:
 
     for name, df in (("events", events), ("deals", deals), ("hands", hands), ("boards", boards)):
         print(f"{name}: {df.height} rows")
+        for col in df.columns:
+            null_count = df[col].null_count()
+            if null_count:
+                print(f"  {col}: {null_count / df.height:.1%} null")
 
     violations = check_invariants(events, deals, hands, boards)
     if violations:
