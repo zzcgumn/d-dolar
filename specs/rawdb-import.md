@@ -33,7 +33,6 @@ full RawDB directory's size.
 1,970,074 lines, but the true row count (confirmed with both Polars and
 Python's `csv` module) is 1,516,591. `deals.csv`, `hands.csv`, and
 `events.csv` have no such fields; `wc -l` is accurate for those.
-would have dropped.
 
 ### What `load_joined_boards` guarantees
 
