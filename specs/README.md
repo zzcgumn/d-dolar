@@ -5,5 +5,7 @@ so a coding agent — human or machine — can change behaviour correctly. A spe
 is read *before* behaviour changes; it is not a summary written after the
 fact.
 
-Nothing here yet. The first entry should define D-dolar and the two sibling
-double-dummy-based defence statistics precisely enough to test against.
+- [`rawdb-import.md`](rawdb-import.md) — how a `bridge-deals-ingest` RawDB
+  directory gets into a typed, validated Polars frame.
+- [`d-dolar.md`](d-dolar.md) — the D-dolar base statistic (opening-lead
+  optimality). The two sibling defence statistics are not written yet.
