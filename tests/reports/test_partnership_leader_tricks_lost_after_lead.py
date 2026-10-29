@@ -69,3 +69,25 @@ def test_player_leader_tricks_lost_after_lead_summary_for_levai_excludes_hegyi()
         "total_tricks_lost": 0,
         "average_tricks_lost": 0.0,
     }
+
+
+def test_two_player_leader_tricks_lost_after_lead_report_combines_all_three_summaries() -> None:
+    from d_dolar.reports.partnership_leader_tricks_lost_after_lead import (
+        partnership_leader_tricks_lost_after_lead_summary,
+        player_leader_tricks_lost_after_lead_summary,
+        two_player_leader_tricks_lost_after_lead_report,
+    )
+
+    joined = load_joined_boards(FIXTURES)
+    report = two_player_leader_tricks_lost_after_lead_report(joined, "HEGYI ANDRAS", "LEVAI FERENC")
+    assert report == {
+        "partnership": partnership_leader_tricks_lost_after_lead_summary(
+            joined, "HEGYI ANDRAS", "LEVAI FERENC"
+        ),
+        "player_a_other_partners": player_leader_tricks_lost_after_lead_summary(
+            joined, "HEGYI ANDRAS", exclude_partner="LEVAI FERENC"
+        ),
+        "player_b_other_partners": player_leader_tricks_lost_after_lead_summary(
+            joined, "LEVAI FERENC", exclude_partner="HEGYI ANDRAS"
+        ),
+    }
