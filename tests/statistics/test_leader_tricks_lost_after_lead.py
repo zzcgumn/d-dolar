@@ -86,6 +86,16 @@ def test_levai_with_other_partner_as_leader_played_perfectly() -> None:
     assert result == 0
 
 
+def test_play_ending_right_after_the_lead_returns_zero_not_none() -> None:
+    from d_dolar.statistics.leader_tricks_lost_after_lead import leader_tricks_lost_after_lead
+
+    # Only trick 1's 4 cards are recorded -- the leader (N) never plays
+    # again. There's nothing further to judge, which is not an error:
+    # the result must be 0, not None.
+    result = leader_tricks_lost_after_lead(_TRIVIAL_DEAL, "W", "3N", "SA_HA_DA_CA")
+    assert result == 0
+
+
 def test_missing_declarer_returns_none() -> None:
     from d_dolar.statistics.leader_tricks_lost_after_lead import leader_tricks_lost_after_lead
 

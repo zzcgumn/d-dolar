@@ -90,7 +90,7 @@ def test_hands_with_fewer_than_four_seats_returns_none() -> None:
     from d_dolar.statistics.second_defender_tricks_lost import second_defender_tricks_lost
 
     # Only 3 of the 4 space-separated hands are present (West's is
-    # missing). Without _parse_hands' own length check, this would
+    # missing). Without parse_hands' own length check, this would
     # produce a seat mapping with no "W" key, so attributing the first
     # card anyone leads to W would raise an uncaught KeyError instead
     # of degrading to None like every other malformed-hands case.

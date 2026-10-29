@@ -3,7 +3,8 @@
 The contract `d_dolar.statistics.d_dolar` implements: whether a single
 board's opening lead was double-dummy optimal. This is the base case of
 the D-dolar statistic; the two sibling defence statistics this package
-will eventually add are out of scope here.
+also computes (`specs/second-defender-tricks-lost.md` and
+`specs/leader-tricks-lost-after-lead.md`) are out of scope here.
 
 ## Behaviour & invariants
 
