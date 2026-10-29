@@ -2,15 +2,7 @@
 
 from dds3 import analyse_play_pbn
 
-# The opening leader is the defender to declarer's left: the next seat
-# clockwise in the standard N -> E -> S -> W -> N rotation.
-_LEADER_OF = {"N": "E", "E": "S", "S": "W", "W": "N"}
-
-# dds3's trump encoding: 0=S 1=H 2=D 3=C 4=NT.
-_STRAIN_TO_TRUMP = {"S": 0, "H": 1, "D": 2, "C": 3, "N": 4}
-
-# dds3's seat encoding: 0=N 1=E 2=S 3=W.
-_SEAT_TO_FIRST = {"N": 0, "E": 1, "S": 2, "W": 3}
+from d_dolar.statistics._seats import LEADER_OF, SEAT_TO_FIRST, STRAIN_TO_TRUMP
 
 
 def d_dolar_base(hands: str, declarer: str | None, contract: str | None, lead: str | None) -> int | None:
@@ -25,8 +17,8 @@ def d_dolar_base(hands: str, declarer: str | None, contract: str | None, lead: s
     if not declarer or not contract or not lead:
         return None
 
-    trump = _STRAIN_TO_TRUMP[contract[1]]
-    first = _SEAT_TO_FIRST[_LEADER_OF[declarer]]
+    trump = STRAIN_TO_TRUMP[contract[1]]
+    first = SEAT_TO_FIRST[LEADER_OF[declarer]]
 
     result = analyse_play_pbn(hands, play=lead, trump=trump, first=first)
     before_lead, after_lead = result["tricks"]
