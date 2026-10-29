@@ -14,9 +14,15 @@ _RANK_ORDER = "23456789TJQKA"
 
 def _parse_hands(hands: str) -> dict[str, set[str]]:
     """Parses a PBN deal string ("N:AKQJT98765432... ...") into each
-    seat's set of 2-character card codes (e.g. "SA", "H5")."""
+    seat's set of 2-character card codes (e.g. "SA", "H5"). Raises
+    ValueError if it doesn't contain exactly 4 space-separated hands --
+    the only way _attribute_cards can later be guaranteed a result for
+    every seat it looks up, rather than a KeyError past this function's
+    own error channel."""
     first_seat, rest = hands.split(":", 1)
     hand_strs = rest.split()
+    if len(hand_strs) != 4:
+        raise ValueError(f"expected 4 hands, got {len(hand_strs)}")
     start = _CLOCKWISE.index(first_seat)
     seats = [_CLOCKWISE[(start + i) % 4] for i in range(4)]
     result: dict[str, set[str]] = {}
