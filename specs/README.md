@@ -8,7 +8,7 @@ fact.
 - [`rawdb-import.md`](rawdb-import.md) — how a `bridge-deals-ingest` RawDB
   directory gets into a typed, validated Polars frame.
 - [`d-dolar.md`](d-dolar.md) — the D-dolar base statistic (opening-lead
-  optimality). The two sibling defence statistics are not written yet.
+  optimality).
 - [`dds3-dependency.md`](dds3-dependency.md) — the vendored DDS 3.1.1
   Python module, how it's built, and what's guaranteed about it.
 - [`partnership-d-dolar-report.md`](partnership-d-dolar-report.md) —
@@ -20,3 +20,9 @@ fact.
 - [`second-defender-tricks-lost-report.md`](second-defender-tricks-lost-report.md)
   — aggregating it across a named two-player defending partnership,
   mirroring `partnership-d-dolar-report.md`.
+- [`leader-tricks-lost-after-lead.md`](leader-tricks-lost-after-lead.md)
+  — the third sibling defence statistic: tricks cost by the opening
+  leader's own cards after their lead.
+- [`leader-tricks-lost-after-lead-report.md`](leader-tricks-lost-after-lead-report.md)
+  — aggregating it across a named two-player defending partnership,
+  mirroring the other two reports.

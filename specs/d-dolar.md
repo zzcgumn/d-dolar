@@ -57,8 +57,9 @@ was first tested against: both DDS builds agree exactly (see
 
 ## Out of scope
 
-- The other two double-dummy-based defence statistics this package will
-  eventually compute.
+- The other two double-dummy-based defence statistics this package
+  computes — see `specs/second-defender-tricks-lost.md` and
+  `specs/leader-tricks-lost-after-lead.md`.
 - Aggregating `d_dolar_base` across many boards — see
   `specs/partnership-d-dolar-report.md`.
 - Caching across repeated evaluations of the same board.
@@ -69,4 +70,4 @@ was first tested against: both DDS builds agree exactly (see
 
 ---
 last-updated: 2026-10-29
-related-plans: none (direct implementation, no make-plan/make-tasks run for this change); partnership-d-dolar-report
+related-plans: none (direct implementation, no make-plan/make-tasks run for this change); partnership-d-dolar-report, leader-tricks-lost-after-lead

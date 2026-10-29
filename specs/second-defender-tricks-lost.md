@@ -80,8 +80,9 @@ never beat it.
 ## Out of scope
 
 - The opening leader's *own* subsequent (non-lead) cards during the
-  defence — not scored by this statistic, nor by D-dolar. A possible
-  subject for the third sibling statistic.
+  defence — not scored by this statistic, nor by D-dolar. See
+  `specs/leader-tricks-lost-after-lead.md`, the third sibling
+  statistic.
 - Declarer's or dummy's own misplays — irrelevant to a defence
   statistic, and these only ever *decrease* the tracked trick count,
   never increase it, so the per-card-cost formula naturally excludes
@@ -100,4 +101,4 @@ never beat it.
 
 ---
 last-updated: 2026-10-29
-related-plans: second-defender-tricks-lost
+related-plans: second-defender-tricks-lost, leader-tricks-lost-after-lead
