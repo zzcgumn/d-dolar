@@ -1,7 +1,11 @@
 """Aggregate d-dolar across a two-player defending partnership."""
 
+import argparse
+from pathlib import Path
+
 import polars as pl
 
+from d_dolar.rawdb.loader import load_joined_boards
 from d_dolar.statistics.d_dolar import d_dolar_base
 
 
@@ -104,3 +108,28 @@ def two_player_d_dolar_report(
             joined, player_b, exclude_partner=player_a
         ),
     }
+
+
+def _print_summary(summary: dict[str, int | float | None]) -> None:
+    for key, value in summary.items():
+        print(f"  {key}: {value}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="D-dolar report for a two-player defending partnership."
+    )
+    parser.add_argument("--rawdb-dir", type=Path, required=True)
+    parser.add_argument("player_a")
+    parser.add_argument("player_b")
+    args = parser.parse_args()
+
+    joined = load_joined_boards(args.rawdb_dir)
+    report = two_player_d_dolar_report(joined, args.player_a, args.player_b)
+
+    print("Partnership")
+    _print_summary(report["partnership"])
+    print(f"{args.player_a} (other partners)")
+    _print_summary(report["player_a_other_partners"])
+    print(f"{args.player_b} (other partners)")
+    _print_summary(report["player_b_other_partners"])

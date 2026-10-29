@@ -20,6 +20,9 @@ dependencies = ["polars>=1.0.0"]
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
 
+[project.scripts]
+d-dolar-partnership-report = "d_dolar.reports.partnership_d_dolar:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/d_dolar"]
 
