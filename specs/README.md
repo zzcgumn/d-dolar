@@ -26,3 +26,6 @@ fact.
 - [`leader-tricks-lost-after-lead-report.md`](leader-tricks-lost-after-lead-report.md)
   — aggregating it across a named two-player defending partnership,
   mirroring the other two reports.
+- [`defence-statistics-frame.md`](defence-statistics-frame.md) —
+  combining all three sibling statistics into one per-board frame,
+  for analyzing how they interact.

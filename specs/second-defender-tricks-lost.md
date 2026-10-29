@@ -77,6 +77,13 @@ difference is always `>= 0` for a card played by *any* defender, since
 whoever plays next — a real card can only match or fall short of that,
 never beat it.
 
+This computation — the card attribution and the one
+`dds3.analyse_play_pbn` call — is shared verbatim with
+`leader_tricks_lost_after_lead` via
+`d_dolar.statistics._board_trajectory.board_trajectory`, which both
+statistics call once per board; only the target seat and the
+summation's starting index differ between them.
+
 ## Out of scope
 
 - The opening leader's *own* subsequent (non-lead) cards during the
@@ -101,4 +108,4 @@ never beat it.
 
 ---
 last-updated: 2026-10-29
-related-plans: second-defender-tricks-lost, leader-tricks-lost-after-lead
+related-plans: second-defender-tricks-lost, leader-tricks-lost-after-lead, defence-statistics-frame

@@ -33,18 +33,21 @@ further to judge, which is not an error.
 
 ### How the opening lead's own cost is excluded
 
-This statistic shares its entire card-attribution and trick-winner
-machinery with `second_defender_tricks_lost`
-(`d_dolar.statistics._trick_play`) -- the same `dds3.analyse_play_pbn`
-call, the same `tricks[i]` trajectory, the same per-card
-`tricks[i] - tricks[i - 1]` diff. The one structural difference: the
-summation here starts at `tricks` index `i = 2`, not `i = 1`. Index
-`i = 1` is always the very first card played in the whole deal, which
-is always the opening leader's own lead (the first seat
-`attribute_cards` returns is always the leader) -- and `d_dolar_base`
-already judges that exact card. Starting at `i = 2` instead of `i = 1`
-is what keeps this statistic and D-dolar from scoring the same card
-twice.
+This statistic shares its entire trajectory computation with
+`second_defender_tricks_lost` via
+`d_dolar.statistics._board_trajectory.board_trajectory` (itself built
+on `d_dolar.statistics._trick_play`'s lower-level card-attribution and
+trick-winner engine) -- the same `dds3.analyse_play_pbn` call, the
+same `tricks[i]` trajectory, the same per-card
+`tricks[i] - tricks[i - 1]` diff, run once per board regardless of how
+many sibling statistics need it. The one structural difference between
+the two statistics: the summation here starts at `tricks` index
+`i = 2`, not `i = 1`. Index `i = 1` is always the very first card
+played in the whole deal, which is always the opening leader's own
+lead (the first seat `attribute_cards` returns is always the leader)
+-- and `d_dolar_base` already judges that exact card. Starting at
+`i = 2` instead of `i = 1` is what keeps this statistic and D-dolar
+from scoring the same card twice.
 
 ## Out of scope
 
@@ -65,4 +68,4 @@ twice.
 
 ---
 last-updated: 2026-10-29
-related-plans: leader-tricks-lost-after-lead
+related-plans: leader-tricks-lost-after-lead, defence-statistics-frame
