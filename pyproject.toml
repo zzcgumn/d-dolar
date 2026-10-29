@@ -22,6 +22,7 @@ dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
 
 [project.scripts]
 d-dolar-partnership-report = "d_dolar.reports.partnership_d_dolar:main"
+d-dolar-second-defender-report = "d_dolar.reports.partnership_second_defender_tricks_lost:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/d_dolar"]

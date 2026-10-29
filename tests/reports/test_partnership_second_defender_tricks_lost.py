@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 from d_dolar.rawdb.loader import load_joined_boards
@@ -83,3 +84,21 @@ def test_two_player_second_defender_report_combines_all_three_summaries() -> Non
             joined, "LEVAI FERENC", exclude_partner="HEGYI ANDRAS"
         ),
     }
+
+
+def test_main_prints_all_three_sections(capsys) -> None:
+    from d_dolar.reports.partnership_second_defender_tricks_lost import main
+
+    old_argv = sys.argv
+    sys.argv = ["prog", "--rawdb-dir", str(FIXTURES), "HEGYI ANDRAS", "LEVAI FERENC"]
+    try:
+        main()
+    finally:
+        sys.argv = old_argv
+
+    out = capsys.readouterr().out
+    assert "Partnership" in out
+    assert "HEGYI ANDRAS (other partners)" in out
+    assert "LEVAI FERENC (other partners)" in out
+    assert "boards_defended: 2" in out
+    assert "average_tricks_lost: 0.5" in out
