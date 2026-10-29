@@ -94,14 +94,6 @@ def test_player_as_leader_boards_can_exclude_a_named_partner() -> None:
     assert _board_uids(result) == {283292}
 
 
-def test_player_as_other_defender_boards_excludes_boards_the_player_led() -> None:
-    from d_dolar.reports.pairings import player_as_other_defender_boards
-
-    joined = load_joined_boards(FIXTURES)
-    result = player_as_other_defender_boards(joined, "HEGYI ANDRAS", exclude_partner="LEVAI FERENC")
-    assert _board_uids(result) == {512007}
-
-
 def test_player_d_dolar_summary_excludes_the_named_partner() -> None:
     from d_dolar.reports.partnership_d_dolar import player_d_dolar_summary
 

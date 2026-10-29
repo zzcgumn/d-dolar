@@ -1,5 +1,6 @@
 """Seat/strain dictionaries shared by every double-dummy-based
-statistic in this package."""
+statistic in this package, and by the report modules that need to
+resolve a board's leader/other-defender seat (d_dolar.reports.pairings)."""
 
 # The opening leader is the defender to declarer's left: the next seat
 # clockwise in the standard N -> E -> S -> W -> N rotation.

@@ -33,7 +33,11 @@ def partnership_defended_boards(
 def _seat_role_name(declarer: pl.Expr, role_of_declarer: dict[str, str]) -> pl.Expr:
     """The player name sitting in whichever seat role_of_declarer maps
     each possible Declarer value to -- e.g. role_of_declarer=LEADER_OF
-    resolves to the opening leader's name for every row."""
+    resolves to the opening leader's name for every row. Null for a row
+    whose Declarer isn't exactly one of N/E/S/W (an all-pass board, or a
+    malformed value like the real RawDB's lowercase "s" rows -- see
+    specs/rawdb-import.md) rather than silently falling back to W, so
+    such a row can never spuriously match a queried player name."""
     return (
         pl.when(declarer == "N")
         .then(pl.col(_SEAT_COLUMN[role_of_declarer["N"]]))
@@ -41,7 +45,9 @@ def _seat_role_name(declarer: pl.Expr, role_of_declarer: dict[str, str]) -> pl.E
         .then(pl.col(_SEAT_COLUMN[role_of_declarer["E"]]))
         .when(declarer == "S")
         .then(pl.col(_SEAT_COLUMN[role_of_declarer["S"]]))
-        .otherwise(pl.col(_SEAT_COLUMN[role_of_declarer["W"]]))
+        .when(declarer == "W")
+        .then(pl.col(_SEAT_COLUMN[role_of_declarer["W"]]))
+        .otherwise(pl.lit(None, dtype=pl.String))
     )
 
 
@@ -54,7 +60,7 @@ def player_as_leader_boards(
     left out."""
     declarer = pl.col("Declarer").cast(pl.String)
     leader_name = _seat_role_name(declarer, LEADER_OF)
-    defended = joined.filter(declarer.is_not_null() & (leader_name == player))
+    defended = joined.filter(leader_name == player)
     if exclude_partner is not None:
         other_defender_name = _seat_role_name(declarer, _OTHER_DEFENDER_OF)
         defended = defended.filter(other_defender_name != exclude_partner)
@@ -69,7 +75,7 @@ def player_as_other_defender_boards(
     excluding the partner who actually led."""
     declarer = pl.col("Declarer").cast(pl.String)
     other_defender_name = _seat_role_name(declarer, _OTHER_DEFENDER_OF)
-    defended = joined.filter(declarer.is_not_null() & (other_defender_name == player))
+    defended = joined.filter(other_defender_name == player)
     if exclude_partner is not None:
         leader_name = _seat_role_name(declarer, LEADER_OF)
         defended = defended.filter(leader_name != exclude_partner)

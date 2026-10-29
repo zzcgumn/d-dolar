@@ -91,9 +91,9 @@ def second_defender_tricks_lost(
     trump_suit = None if contract[1] == "N" else contract[1]
 
     cards = play.split("_")
-    parsed_hands = _parse_hands(hands)
 
     try:
+        parsed_hands = _parse_hands(hands)
         seats = _attribute_cards(parsed_hands, leader, cards, trump_suit)
     except ValueError:
         return None
