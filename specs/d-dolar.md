@@ -22,8 +22,11 @@ produces. It returns:
 - `0` if the lead was legal but not optimal: it let declarer make at
   least one more trick than double-dummy optimal.
 - `None` if there is no lead to judge: an all-pass board (`declarer` is
-  empty) or a board whose opening lead was never recorded (`lead` is
-  empty). Falsy `contract` is treated the same way, defensively.
+  empty), a board whose opening lead was never recorded (`lead` is
+  empty), or a board whose recorded `lead` the computed opening leader
+  doesn't actually hold (a RawDB data defect, not a malformed-input
+  case — see `specs/rawdb-import.md`). Falsy `contract` is treated the
+  same way, defensively.
 
 The opening leader is derived, not taken as input: it is the seat to
 `declarer`'s left, i.e. the next seat clockwise in the standard
@@ -71,4 +74,4 @@ was first tested against: both DDS builds agree exactly (see
 
 ---
 last-updated: 2026-10-29
-related-plans: none (direct implementation, no make-plan/make-tasks run for this change); partnership-d-dolar-report, leader-tricks-lost-after-lead
+related-plans: none (direct implementation, no make-plan/make-tasks run for this change); partnership-d-dolar-report, leader-tricks-lost-after-lead, d-dolar-lead-ownership-check

@@ -93,6 +93,16 @@ has a corrupted, structurally impossible play string (`BoardUID
 from a 52-card deck); and 105 of those ~560,000 boards have a `Play`
 whose first card does not match the separate `Lead` column's value.
 
+**A fourth real-data quirk, in `Lead`**, found while running
+`d_dolar_base` against the full RawDB (it previously raised an
+uncaught `RuntimeError` from `dds3` on these rows instead of returning
+`None`): of 1,028,505 boards with `Declarer`, `Contract`, and `Lead`
+all present, 34,109 (~3.3%) have a `Lead` that the seat computed to be
+the opening leader does not actually hold, per the `Hands` PBN string
+(e.g. `BoardUID 1194011`: `Declarer = W`, so the leader is North, but
+North's hand has no `D7`, which is the recorded `Lead`). Not checked
+by `check_invariants` — same posture as the other three defects above.
+
 ### Null semantics
 
 Every column is read with `null_values=[""]`: an empty CSV field becomes a
@@ -116,4 +126,4 @@ recorded" by the source format itself, not "unknown" — it is kept as
 
 ---
 last-updated: 2026-10-29
-related-plans: import-raw-bridge-deals-csv, second-defender-tricks-lost
+related-plans: import-raw-bridge-deals-csv, second-defender-tricks-lost, d-dolar-lead-ownership-check
