@@ -1,0 +1,46 @@
+"""Aggregate second-defender-tricks-lost across a two-player defending
+partnership."""
+
+import polars as pl
+
+from d_dolar.reports.pairings import (
+    partnership_defended_boards,
+    player_as_other_defender_boards,
+)
+from d_dolar.statistics.second_defender_tricks_lost import second_defender_tricks_lost
+
+
+def _summarize(defended: pl.DataFrame) -> dict[str, int | float | None]:
+    boards_defended = defended.height
+    results = [
+        second_defender_tricks_lost(row["Hands"], row["Declarer"], row["Contract"], row["Play"])
+        for row in defended.iter_rows(named=True)
+    ]
+    judged = [r for r in results if r is not None]
+    boards_judged = len(judged)
+    total_tricks_lost = sum(judged)
+    return {
+        "boards_defended": boards_defended,
+        "boards_judged": boards_judged,
+        "total_tricks_lost": total_tricks_lost,
+        "average_tricks_lost": total_tricks_lost / boards_judged if boards_judged else None,
+    }
+
+
+def partnership_second_defender_summary(
+    joined: pl.LazyFrame, player_a: str, player_b: str
+) -> dict[str, int | float | None]:
+    """Runs second_defender_tricks_lost over partnership_defended_boards'
+    rows. See _summarize for the returned shape."""
+    defended = partnership_defended_boards(joined, player_a, player_b).collect()
+    return _summarize(defended)
+
+
+def player_second_defender_summary(
+    joined: pl.LazyFrame, player: str, exclude_partner: str | None = None
+) -> dict[str, int | float | None]:
+    """Runs second_defender_tricks_lost over
+    player_as_other_defender_boards' rows. Same summary shape as
+    partnership_second_defender_summary."""
+    defended = player_as_other_defender_boards(joined, player, exclude_partner).collect()
+    return _summarize(defended)
