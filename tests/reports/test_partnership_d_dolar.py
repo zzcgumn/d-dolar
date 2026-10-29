@@ -75,3 +75,55 @@ def test_partnership_d_dolar_summary_is_all_zero_for_an_unknown_pair() -> None:
         "boards_suboptimal": 0,
         "d_dolar_rate": None,
     }
+
+
+def test_player_defended_boards_excludes_declaring_and_opponent_rows() -> None:
+    from d_dolar.reports.partnership_d_dolar import player_defended_boards
+
+    joined = load_joined_boards(FIXTURES)
+    result = player_defended_boards(joined, "HEGYI ANDRAS")
+    assert _board_uids(result) == {583742, 408320, 512007, 283292}
+
+
+def test_player_defended_boards_can_exclude_a_named_partner() -> None:
+    from d_dolar.reports.partnership_d_dolar import player_defended_boards
+
+    joined = load_joined_boards(FIXTURES)
+    result = player_defended_boards(joined, "HEGYI ANDRAS", exclude_partner="LEVAI FERENC")
+    assert _board_uids(result) == {512007, 283292}
+
+
+def test_player_d_dolar_summary_excludes_the_named_partner() -> None:
+    from d_dolar.reports.partnership_d_dolar import player_d_dolar_summary
+
+    joined = load_joined_boards(FIXTURES)
+    summary = player_d_dolar_summary(joined, "HEGYI ANDRAS", exclude_partner="LEVAI FERENC")
+    assert summary == {
+        "boards_defended": 2,
+        "boards_judged": 2,
+        "boards_optimal": 1,
+        "boards_suboptimal": 1,
+        "d_dolar_rate": 0.5,
+    }
+
+
+def test_player_d_dolar_summary_for_levai_excludes_hegyi() -> None:
+    from d_dolar.reports.partnership_d_dolar import player_d_dolar_summary
+
+    joined = load_joined_boards(FIXTURES)
+    summary = player_d_dolar_summary(joined, "LEVAI FERENC", exclude_partner="HEGYI ANDRAS")
+    assert summary == {
+        "boards_defended": 2,
+        "boards_judged": 2,
+        "boards_optimal": 1,
+        "boards_suboptimal": 1,
+        "d_dolar_rate": 0.5,
+    }
+
+
+def test_player_d_dolar_summary_without_exclusion_includes_everyone() -> None:
+    from d_dolar.reports.partnership_d_dolar import player_d_dolar_summary
+
+    joined = load_joined_boards(FIXTURES)
+    summary = player_d_dolar_summary(joined, "HEGYI ANDRAS")
+    assert summary["boards_defended"] == 4
