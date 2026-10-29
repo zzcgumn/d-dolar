@@ -127,3 +127,23 @@ def test_player_d_dolar_summary_without_exclusion_includes_everyone() -> None:
     joined = load_joined_boards(FIXTURES)
     summary = player_d_dolar_summary(joined, "HEGYI ANDRAS")
     assert summary["boards_defended"] == 4
+
+
+def test_two_player_d_dolar_report_combines_all_three_summaries() -> None:
+    from d_dolar.reports.partnership_d_dolar import (
+        partnership_d_dolar_summary,
+        player_d_dolar_summary,
+        two_player_d_dolar_report,
+    )
+
+    joined = load_joined_boards(FIXTURES)
+    report = two_player_d_dolar_report(joined, "HEGYI ANDRAS", "LEVAI FERENC")
+    assert report == {
+        "partnership": partnership_d_dolar_summary(joined, "HEGYI ANDRAS", "LEVAI FERENC"),
+        "player_a_other_partners": player_d_dolar_summary(
+            joined, "HEGYI ANDRAS", exclude_partner="LEVAI FERENC"
+        ),
+        "player_b_other_partners": player_d_dolar_summary(
+            joined, "LEVAI FERENC", exclude_partner="HEGYI ANDRAS"
+        ),
+    }

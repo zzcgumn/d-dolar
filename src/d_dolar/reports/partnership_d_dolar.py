@@ -88,3 +88,19 @@ def player_d_dolar_summary(
     summary shape as partnership_d_dolar_summary."""
     defended = player_defended_boards(joined, player, exclude_partner).collect()
     return _summarize(defended)
+
+
+def two_player_d_dolar_report(
+    joined: pl.LazyFrame, player_a: str, player_b: str
+) -> dict[str, dict[str, int | float | None]]:
+    """{"partnership": ..., "player_a_other_partners": ...,
+    "player_b_other_partners": ...}."""
+    return {
+        "partnership": partnership_d_dolar_summary(joined, player_a, player_b),
+        "player_a_other_partners": player_d_dolar_summary(
+            joined, player_a, exclude_partner=player_b
+        ),
+        "player_b_other_partners": player_d_dolar_summary(
+            joined, player_b, exclude_partner=player_a
+        ),
+    }
