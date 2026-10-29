@@ -84,6 +84,15 @@ full RawDB directory reports exactly one violation — 3 `boards.csv` rows
 a genuine upstream data defect, not a bug in this package; `d_dolar.rawdb`
 does not correct it.
 
+**Two more real-data quirks in `Play`**, found while building the
+second-defender-tricks-lost statistic, neither checked by
+`check_invariants` (see `specs/second-defender-tricks-lost.md`'s "Out
+of scope"): exactly 1 of the ~560,000 boards with any recorded `Play`
+has a corrupted, structurally impossible play string (`BoardUID
+770156`'s `Play` repeats the same 4-card block five times — 58 cards
+from a 52-card deck); and 105 of those ~560,000 boards have a `Play`
+whose first card does not match the separate `Lead` column's value.
+
 ### Null semantics
 
 Every column is read with `null_values=[""]`: an empty CSV field becomes a
@@ -106,5 +115,5 @@ recorded" by the source format itself, not "unknown" — it is kept as
   validated board/deal/hand data into a Polars frame.
 
 ---
-last-updated: 2026-10-28
-related-plans: import-raw-bridge-deals-csv
+last-updated: 2026-10-29
+related-plans: import-raw-bridge-deals-csv, second-defender-tricks-lost

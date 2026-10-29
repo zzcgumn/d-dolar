@@ -14,3 +14,9 @@ fact.
 - [`partnership-d-dolar-report.md`](partnership-d-dolar-report.md) —
   aggregating D-dolar across a named two-player defending partnership,
   and each player's aggregate with everyone else.
+- [`second-defender-tricks-lost.md`](second-defender-tricks-lost.md) —
+  the second sibling defence statistic: tricks cost by every card the
+  non-leading defender played.
+- [`second-defender-tricks-lost-report.md`](second-defender-tricks-lost-report.md)
+  — aggregating it across a named two-player defending partnership,
+  mirroring `partnership-d-dolar-report.md`.

@@ -21,12 +21,15 @@ Given two player names, three summaries, each shaped
   an all-pass board (`Declarer` null), are excluded entirely, not
   counted as zero.
 - **Each player's "other partners"**: the same shape, for one named
-  player, over every board where they defended with *any* partner
-  except the other named player. This is `exclude_partner` applied to
-  the player-level query — it exists so the partnership figure and the
-  two per-player figures partition a player's defended boards rather
-  than overlapping; without it, a board already counted in the
-  partnership summary would also inflate "other partners."
+  player, over every board where they **personally made the opening
+  lead** while defending with any partner except the other named
+  player — not merely every board where they were on the defending
+  side, since `d_dolar_base` only ever judges the one specific seat
+  that led. `exclude_partner` applied to this role-aware query is what
+  makes the partnership figure and the two per-player figures partition
+  a player's "as leader" boards rather than overlapping; without it, a
+  board already counted in the partnership summary would also inflate
+  "other partners."
 
 `boards_judged` counts boards with a recorded `Lead` (`d_dolar_base`
 returns `0` or `1`); `boards_defended - boards_judged` is boards with
@@ -67,4 +70,4 @@ CLI's job only.
 
 ---
 last-updated: 2026-10-29
-related-plans: partnership-d-dolar-report
+related-plans: partnership-d-dolar-report, second-defender-tricks-lost
