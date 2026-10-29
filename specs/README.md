@@ -11,3 +11,6 @@ fact.
   optimality). The two sibling defence statistics are not written yet.
 - [`dds3-dependency.md`](dds3-dependency.md) — the vendored DDS 3.1.1
   Python module, how it's built, and what's guaranteed about it.
+- [`partnership-d-dolar-report.md`](partnership-d-dolar-report.md) —
+  aggregating D-dolar across a named two-player defending partnership,
+  and each player's aggregate with everyone else.

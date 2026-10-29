@@ -59,13 +59,14 @@ was first tested against: both DDS builds agree exactly (see
 
 - The other two double-dummy-based defence statistics this package will
   eventually compute.
-- Aggregating `d_dolar_base` across many boards, or any caching across
-  repeated evaluations of the same board.
+- Aggregating `d_dolar_base` across many boards — see
+  `specs/partnership-d-dolar-report.md`.
+- Caching across repeated evaluations of the same board.
 - Validating `declarer`/`contract` against a known domain before use —
   malformed input raises (`KeyError`) rather than being silently
   tolerated; `d_dolar.rawdb.validate.check_invariants` is where domain
   checks on RawDB data belong.
 
 ---
-last-updated: 2026-10-28
-related-plans: none (direct implementation, no make-plan/make-tasks run for this change)
+last-updated: 2026-10-29
+related-plans: none (direct implementation, no make-plan/make-tasks run for this change); partnership-d-dolar-report
