@@ -72,7 +72,20 @@ def test_unrecorded_lead_board_present() -> None:
     assert row["Lead"] == ""
 
 
+def test_lead_without_play_board_present() -> None:
+    row = _row("boards.csv", "BoardUID", "1499299")
+    assert row["Declarer"] == "W"
+    assert row["Lead"] == "D5"
+    assert row["Play"] == ""
+
+
+def test_all_pass_board_present() -> None:
+    row = _row("boards.csv", "BoardUID", "1117730")
+    assert row["Declarer"] == ""
+    assert row["Contract"] == "AP"
+
+
 def test_fixture_row_counts() -> None:
-    for name, expected in (("boards.csv", 9), ("deals.csv", 9), ("hands.csv", 9), ("events.csv", 8)):
+    for name, expected in (("boards.csv", 11), ("deals.csv", 11), ("hands.csv", 11), ("events.csv", 10)):
         with (FIXTURES / name).open(newline="") as f:
             assert sum(1 for _ in csv.DictReader(f)) == expected

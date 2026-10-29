@@ -7,3 +7,5 @@ EventUID,MatchID,EventName,MatchName,EventLocation,MatchDate,ScoringForm,Tables,
 286,323,Budapest MP Championship 2024/2025,Division I/A | Session 7/8,Budapest,2025-01-28,MPs,15,results/recent\mbsz_3015410_7_1.csv
 923,100,Tatabanyai SC,Klubnap | 2026-01-15,Tatabánya,2026-01-15,MPs,6,results/recent\tsc_130705_1_1.csv
 251,47,BBO4-2023WYTC,75892: U21-RR10: USA2 vs JAPAN,,,IMPs,2,..\RawHands\LIN\postpan2\75892.lin
+969,749,Venice Cup 2022: 45th World Teams Championships,VeniceCup2022: ITALY vs CANADA: Round Round Robin: Section 18: Session 1: Session 1,"Salsomaggiore, Italy",2022-04-02,IMPs,2,..\RawHands\JSON\WBF\2022\VeniceCup2022.json
+1017,1828,d'Orsi Trophy 2023: 46th World Teams Championships,dOrsiTrophy2023: DENMARK vs ITALY: Round Quarterfinal: Section 1: Session 1: Session 2: Session 2,"Marrakech, Morocco",2023-08-28,IMPs,2,..\RawHands\JSON\WBF\2023\dOrsiTrophy2023.json
