@@ -44,3 +44,19 @@ def player_second_defender_summary(
     partnership_second_defender_summary."""
     defended = player_as_other_defender_boards(joined, player, exclude_partner).collect()
     return _summarize(defended)
+
+
+def two_player_second_defender_report(
+    joined: pl.LazyFrame, player_a: str, player_b: str
+) -> dict[str, dict[str, int | float | None]]:
+    """{"partnership": ..., "player_a_other_partners": ...,
+    "player_b_other_partners": ...}."""
+    return {
+        "partnership": partnership_second_defender_summary(joined, player_a, player_b),
+        "player_a_other_partners": player_second_defender_summary(
+            joined, player_a, exclude_partner=player_b
+        ),
+        "player_b_other_partners": player_second_defender_summary(
+            joined, player_b, exclude_partner=player_a
+        ),
+    }
