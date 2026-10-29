@@ -78,20 +78,28 @@ def test_partnership_d_dolar_summary_is_all_zero_for_an_unknown_pair() -> None:
     }
 
 
-def test_player_defended_boards_excludes_declaring_and_opponent_rows() -> None:
-    from d_dolar.reports.partnership_d_dolar import player_defended_boards
+def test_player_as_leader_boards_finds_every_board_player_personally_led() -> None:
+    from d_dolar.reports.partnership_d_dolar import player_as_leader_boards
 
     joined = load_joined_boards(FIXTURES)
-    result = player_defended_boards(joined, "HEGYI ANDRAS")
-    assert _board_uids(result) == {583742, 408320, 512007, 283292}
+    result = player_as_leader_boards(joined, "HEGYI ANDRAS")
+    assert _board_uids(result) == {408320, 283292}
 
 
-def test_player_defended_boards_can_exclude_a_named_partner() -> None:
-    from d_dolar.reports.partnership_d_dolar import player_defended_boards
+def test_player_as_leader_boards_can_exclude_a_named_partner() -> None:
+    from d_dolar.reports.partnership_d_dolar import player_as_leader_boards
 
     joined = load_joined_boards(FIXTURES)
-    result = player_defended_boards(joined, "HEGYI ANDRAS", exclude_partner="LEVAI FERENC")
-    assert _board_uids(result) == {512007, 283292}
+    result = player_as_leader_boards(joined, "HEGYI ANDRAS", exclude_partner="LEVAI FERENC")
+    assert _board_uids(result) == {283292}
+
+
+def test_player_as_other_defender_boards_excludes_boards_the_player_led() -> None:
+    from d_dolar.reports.pairings import player_as_other_defender_boards
+
+    joined = load_joined_boards(FIXTURES)
+    result = player_as_other_defender_boards(joined, "HEGYI ANDRAS", exclude_partner="LEVAI FERENC")
+    assert _board_uids(result) == {512007}
 
 
 def test_player_d_dolar_summary_excludes_the_named_partner() -> None:
@@ -100,11 +108,11 @@ def test_player_d_dolar_summary_excludes_the_named_partner() -> None:
     joined = load_joined_boards(FIXTURES)
     summary = player_d_dolar_summary(joined, "HEGYI ANDRAS", exclude_partner="LEVAI FERENC")
     assert summary == {
-        "boards_defended": 2,
-        "boards_judged": 2,
-        "boards_optimal": 1,
+        "boards_defended": 1,
+        "boards_judged": 1,
+        "boards_optimal": 0,
         "boards_suboptimal": 1,
-        "d_dolar_rate": 0.5,
+        "d_dolar_rate": 0.0,
     }
 
 
@@ -114,20 +122,20 @@ def test_player_d_dolar_summary_for_levai_excludes_hegyi() -> None:
     joined = load_joined_boards(FIXTURES)
     summary = player_d_dolar_summary(joined, "LEVAI FERENC", exclude_partner="HEGYI ANDRAS")
     assert summary == {
-        "boards_defended": 2,
-        "boards_judged": 2,
-        "boards_optimal": 1,
+        "boards_defended": 1,
+        "boards_judged": 1,
+        "boards_optimal": 0,
         "boards_suboptimal": 1,
-        "d_dolar_rate": 0.5,
+        "d_dolar_rate": 0.0,
     }
 
 
-def test_player_d_dolar_summary_without_exclusion_includes_everyone() -> None:
+def test_player_d_dolar_summary_without_exclusion_includes_every_board_they_led() -> None:
     from d_dolar.reports.partnership_d_dolar import player_d_dolar_summary
 
     joined = load_joined_boards(FIXTURES)
     summary = player_d_dolar_summary(joined, "HEGYI ANDRAS")
-    assert summary["boards_defended"] == 4
+    assert summary["boards_defended"] == 2
 
 
 def test_two_player_d_dolar_report_combines_all_three_summaries() -> None:
