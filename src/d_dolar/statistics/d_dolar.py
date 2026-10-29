@@ -3,6 +3,7 @@
 from dds3 import analyse_play_pbn
 
 from d_dolar.statistics._seats import LEADER_OF, SEAT_TO_FIRST, STRAIN_TO_TRUMP
+from d_dolar.statistics._trick_play import parse_hands
 
 
 def d_dolar_base(hands: str, declarer: str | None, contract: str | None, lead: str | None) -> int | None:
@@ -11,14 +12,24 @@ def d_dolar_base(hands: str, declarer: str | None, contract: str | None, lead: s
     1 if the lead cost the defence nothing against double-dummy-optimal
     play from everyone thereafter, 0 if it let declarer make at least one
     more trick than double-dummy optimal. None if there is no lead to
-    judge: an all-pass board (no `declarer`), or one where the opening
-    lead was never recorded (no `lead`).
+    judge: an all-pass board (no `declarer`), a board where the opening
+    lead was never recorded (no `lead`), or a recorded `lead` that the
+    computed opening leader doesn't actually hold (a known, rare
+    upstream data defect; see specs/rawdb-import.md).
     """
     if not declarer or not contract or not lead:
         return None
 
+    leader = LEADER_OF[declarer]
+    try:
+        parsed_hands = parse_hands(hands)
+    except ValueError:
+        return None
+    if lead not in parsed_hands[leader]:
+        return None
+
     trump = STRAIN_TO_TRUMP[contract[1]]
-    first = SEAT_TO_FIRST[LEADER_OF[declarer]]
+    first = SEAT_TO_FIRST[leader]
 
     result = analyse_play_pbn(hands, play=lead, trump=trump, first=first)
     before_lead, after_lead = result["tricks"]

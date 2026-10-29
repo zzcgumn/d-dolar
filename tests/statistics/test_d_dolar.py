@@ -56,3 +56,16 @@ def test_unrecorded_lead_returns_none() -> None:
     board = _row("boards.csv", "BoardUID", "946801")
     hand = _row("hands.csv", "HandUID", "135387")
     assert d_dolar_base(hand["Hands"], board["Declarer"], board["Contract"], board["Lead"]) is None
+
+
+def test_lead_not_held_by_leader_returns_none() -> None:
+    from d_dolar.statistics.d_dolar import d_dolar_base
+
+    # BoardUID 1194011: Declarer=W, so leader=North. North's hand
+    # (975.A54.6.AJ9732) holds only the D6, not the recorded Lead
+    # (D7) -- a real, confirmed RawDB data defect (~3.3% of judged
+    # boards in the full RawDB have this). Must return None, not
+    # raise the RuntimeError dds3 itself raises for an illegal lead.
+    board = _row("boards.csv", "BoardUID", "1194011")
+    hand = _row("hands.csv", "HandUID", "171224")
+    assert d_dolar_base(hand["Hands"], board["Declarer"], board["Contract"], board["Lead"]) is None

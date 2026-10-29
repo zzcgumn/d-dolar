@@ -12,28 +12,28 @@ def test_load_events_returns_expected_rows() -> None:
 
     lf = load_events(FIXTURES)
     assert isinstance(lf, pl.LazyFrame)
-    assert lf.collect().height == 5
+    assert lf.collect().height == 6
 
 
 def test_load_deals_returns_expected_rows() -> None:
     from d_dolar.rawdb.loader import load_deals
 
     lf = load_deals(FIXTURES)
-    assert lf.collect().height == 5
+    assert lf.collect().height == 6
 
 
 def test_load_hands_returns_expected_rows() -> None:
     from d_dolar.rawdb.loader import load_hands
 
     lf = load_hands(FIXTURES)
-    assert lf.collect().height == 5
+    assert lf.collect().height == 6
 
 
 def test_load_boards_returns_expected_rows() -> None:
     from d_dolar.rawdb.loader import load_boards
 
     df = load_boards(FIXTURES).collect()
-    assert df.height == 4
+    assert df.height == 5
     row = df.filter(pl.col("BoardUID") == 1499299).row(0, named=True)
     assert row["RawScoreNS"] is None
     assert row["TricksMade"] == 12
@@ -54,7 +54,7 @@ def test_load_joined_boards_joins_on_expected_keys() -> None:
     from d_dolar.rawdb.loader import load_joined_boards
 
     df = load_joined_boards(FIXTURES).collect()
-    assert df.height == 4
+    assert df.height == 5
     assert df.columns.count("Hands") == 1
     assert "Hands_right" not in df.columns
     for col in ("DD_W_N", "ParScoreNS", "ParContracts", "EventName", "MatchName"):
