@@ -32,7 +32,7 @@ def with_defence_statistics(joined: pl.LazyFrame) -> pl.DataFrame:
             row["Lead"],
             row["Play"],
         )
-        d_dolar_values.append(d_dolar_base(hands, declarer, contract, lead))
+        d_dolar_values.append(d_dolar_base(hands, declarer, contract, lead, play))
 
         trajectory = board_trajectory(hands, declarer, contract, play)
         if trajectory is None:

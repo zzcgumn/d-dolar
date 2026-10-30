@@ -35,7 +35,9 @@ def test_hegyi_as_leader_excludes_the_already_judged_suboptimal_lead_cost() -> N
     # must still return 0, since it only scores what Hegyi did AFTER
     # that lead (which was, in fact, perfect). A naive "sum every card
     # the leader plays, including the first" would not return 0 here.
-    assert d_dolar_base(hand["Hands"], board["Declarer"], board["Contract"], board["Lead"]) == 0
+    assert d_dolar_base(
+        hand["Hands"], board["Declarer"], board["Contract"], board["Lead"], board["Play"]
+    ) == 0
     result = leader_tricks_lost_after_lead(
         hand["Hands"], board["Declarer"], board["Contract"], board["Play"]
     )

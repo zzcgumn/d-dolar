@@ -68,3 +68,57 @@ def test_returns_leader_seats_and_tricks_matching_both_statistics() -> None:
     # for this exact board.
     assert dropped_over_dummy == 1
     assert dropped_before_dummy == 0
+
+
+_TRIVIAL_DEAL = (
+    "N:AKQJT98765432... .AKQJT98765432.. ..AKQJT98765432. ...AKQJT98765432"
+)
+
+
+def test_lead_trajectory_missing_declarer_returns_none() -> None:
+    from d_dolar.statistics._board_trajectory import lead_trajectory
+
+    assert lead_trajectory(_TRIVIAL_DEAL, None, "3N", "DA", None) is None
+
+
+def test_lead_trajectory_both_lead_and_play_missing_returns_none() -> None:
+    from d_dolar.statistics._board_trajectory import lead_trajectory
+
+    assert lead_trajectory(_TRIVIAL_DEAL, "E", "3N", "", "") is None
+
+
+def test_lead_trajectory_card_not_held_by_leader_returns_none() -> None:
+    from d_dolar.statistics._board_trajectory import lead_trajectory
+
+    # declarer=E -> leader=South, who holds only diamonds in the
+    # trivial deal. HA belongs to East, not South.
+    assert lead_trajectory(_TRIVIAL_DEAL, "E", "3N", "HA", None) is None
+
+
+def test_lead_trajectory_uses_lead_even_when_it_disagrees_with_play() -> None:
+    from d_dolar.statistics._board_trajectory import lead_trajectory
+
+    # declarer=E -> leader=South, who holds only diamonds (DA..D2).
+    # play's first card (D2) differs from lead (DA); lead must win,
+    # and play's garbage tail is never even inspected.
+    with_conflicting_play = lead_trajectory(
+        _TRIVIAL_DEAL, "E", "3N", "DA", "D2_not_a_real_play"
+    )
+    without_play = lead_trajectory(_TRIVIAL_DEAL, "E", "3N", "DA", None)
+    assert with_conflicting_play is not None
+    assert with_conflicting_play == without_play
+
+
+def test_lead_trajectory_falls_back_to_plays_first_card_when_lead_absent() -> None:
+    from d_dolar.statistics._board_trajectory import lead_trajectory
+
+    # BoardUID 946801: Declarer=E, Contract=3D, Lead empty, Play
+    # starts H4. Leader (South) holds H4. Confirmed directly via
+    # dds3.analyse_play_pbn this session: [10, 10].
+    board = _row("boards.csv", "BoardUID", "946801")
+    hand = _row("hands.csv", "HandUID", "135387")
+    assert board["Lead"] == ""
+    result = lead_trajectory(
+        hand["Hands"], board["Declarer"], board["Contract"], board["Lead"], board["Play"]
+    )
+    assert result == [10, 10]

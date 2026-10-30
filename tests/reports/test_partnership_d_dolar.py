@@ -50,17 +50,20 @@ def test_partnership_d_dolar_summary_aggregates_optimal_and_suboptimal() -> None
     }
 
 
-def test_partnership_d_dolar_summary_counts_unrecorded_lead_as_defended_not_judged() -> None:
+def test_partnership_d_dolar_summary_judges_a_board_via_plays_first_card_when_lead_is_absent() -> None:
     from d_dolar.reports.partnership_d_dolar import partnership_d_dolar_summary
 
     joined = load_joined_boards(FIXTURES)
+    # BoardUID 946801 (XIAO/YUE) has no recorded Lead, but does have a
+    # recorded Play -- d_dolar_base now falls back to Play's first
+    # card, so this board is judged (and optimal), not merely defended.
     summary = partnership_d_dolar_summary(joined, "XIAO", "YUE")
     assert summary == {
         "boards_defended": 1,
-        "boards_judged": 0,
-        "boards_optimal": 0,
+        "boards_judged": 1,
+        "boards_optimal": 1,
         "boards_suboptimal": 0,
-        "d_dolar_rate": None,
+        "d_dolar_rate": 1.0,
     }
 
 

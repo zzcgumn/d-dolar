@@ -19,10 +19,12 @@ def test_sample_larger_than_available_rows_uses_the_whole_fixture_set() -> None:
     # Only 11 boards exist, fewer than the default sample size of 100 --
     # the whole fixture set is used instead of raising. With all 11
     # rows sampled (not a random subset), the d_dolar numbers are
-    # deterministic: 6 of the 9 judged boards (946801/1117730 have no
-    # recorded Lead) have an optimal opening lead.
+    # deterministic: 7 of the 10 judged boards have an optimal opening
+    # lead. 1117730 is the only unjudged board (an all-pass board, no
+    # declarer); 946801 has no recorded Lead but is now judged via its
+    # recorded Play's first card (see specs/d-dolar.md).
     assert "Sampled 11 board(s) out of 11." in result.stdout
-    assert "d_dolar == 1 (optimal opening lead) on 6/9 judged board(s) (66.7%)." in result.stdout
+    assert "d_dolar == 1 (optimal opening lead) on 7/10 judged board(s) (70.0%)." in result.stdout
 
 
 def test_explicit_sample_size_smaller_than_available_rows() -> None:

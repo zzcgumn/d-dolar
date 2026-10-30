@@ -13,7 +13,7 @@ from d_dolar.statistics.d_dolar import d_dolar_base
 def _summarize(defended: pl.DataFrame) -> dict[str, int | float | None]:
     boards_defended = defended.height
     results = [
-        d_dolar_base(row["Hands"], row["Declarer"], row["Contract"], row["Lead"])
+        d_dolar_base(row["Hands"], row["Declarer"], row["Contract"], row["Lead"], row["Play"])
         for row in defended.iter_rows(named=True)
     ]
     boards_optimal = sum(1 for r in results if r == 1)

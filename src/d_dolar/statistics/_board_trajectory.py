@@ -8,6 +8,40 @@ from d_dolar.statistics._seats import LEADER_OF, SEAT_TO_FIRST, STRAIN_TO_TRUMP
 from d_dolar.statistics._trick_play import attribute_cards, parse_hands
 
 
+def lead_trajectory(
+    hands: str, declarer: str | None, contract: str | None, lead: str | None, play: str | None
+) -> list[int] | None:
+    """Returns [before, after] double-dummy trick counts for declarer's
+    side across the opening-lead card -- the raw pair d_dolar_base
+    reduces to its 0/1/None result. Uses `lead` whenever it's present,
+    even on the ~105 documented boards where it disagrees with `play`'s
+    first card (specs/rawdb-import.md) -- no reconciliation attempted.
+    Only when `lead` is empty does it fall back to `play`'s first card
+    (by construction the leader's own card, per attribute_cards'
+    rotation). None if neither `lead` nor `play` supplies a usable
+    card, if `declarer`/`contract` is falsy, or if the resulting card
+    isn't held by the computed leader."""
+    if not declarer or not contract:
+        return None
+    effective_lead = lead if lead else (play.split("_")[0] if play else None)
+    if not effective_lead:
+        return None
+
+    leader = LEADER_OF[declarer]
+    try:
+        parsed_hands = parse_hands(hands)
+    except ValueError:
+        return None
+    if effective_lead not in parsed_hands[leader]:
+        return None
+
+    trump = STRAIN_TO_TRUMP[contract[1]]
+    first = SEAT_TO_FIRST[leader]
+    result = analyse_play_pbn(hands, play=effective_lead, trump=trump, first=first)
+    tricks: list[int] = result["tricks"]
+    return tricks
+
+
 def board_trajectory(
     hands: str, declarer: str | None, contract: str | None, play: str | None
 ) -> tuple[str, list[str], list[int]] | None:
