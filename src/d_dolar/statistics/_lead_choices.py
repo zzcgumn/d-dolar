@@ -17,13 +17,15 @@ from d_dolar.statistics._seats import (
 
 def _solve_opening_lead(
     hands: str, declarer: str | None, contract: str | None
-) -> tuple[list[int], list[int], list[int], list[int]] | None:
+) -> tuple[tuple[int, ...], tuple[int, ...], tuple[int, ...], tuple[int, ...]] | None:
     """Internal: one solve_board_pbn call, sliced to its own `cards`
     count. Returns dds3's raw per-choice encoding -- (suit, rank,
-    equals, score) -- or None if declarer/contract is falsy.
-    lead_choices and recorded_lead_defender_tricks both build on
-    this single call; with_defence_statistics calls it directly
-    too, so the one necessary solve per row is never repeated."""
+    equals, score), each a tuple since slicing dds3's own
+    tuple-shaped result yields a tuple -- or None if
+    declarer/contract is falsy. lead_choices and
+    recorded_lead_defender_tricks both build on this single call;
+    with_defence_statistics calls it directly too, so the one
+    necessary solve per row is never repeated."""
     if not declarer or not contract:
         return None
     leader = LEADER_OF[declarer]

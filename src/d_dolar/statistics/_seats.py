@@ -23,8 +23,19 @@ SUIT_TO_STRAIN = {0: "S", 1: "H", 2: "D", 3: "C"}
 # dds3's rank encoding on a solve_board_pbn result: 2..9 literal,
 # 10=T 11=J 12=Q 13=K 14=A.
 RANK_TO_CARD = {
-    2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9",
-    10: "T", 11: "J", 12: "Q", 13: "K", 14: "A",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    6: "6",
+    7: "7",
+    8: "8",
+    9: "9",
+    10: "T",
+    11: "J",
+    12: "Q",
+    13: "K",
+    14: "A",
 }
 
 # The reverse of RANK_TO_CARD -- decoding a card string's rank
