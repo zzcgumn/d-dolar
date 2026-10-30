@@ -32,3 +32,8 @@ fact.
 - [`lead-matters.md`](lead-matters.md) — whether a board's opening
   lead was the only choice that mattered, using `dds3`'s
   `solve_board_pbn` to evaluate every legal lead at once.
+- [`partnerships.md`](partnerships.md) — discovering which
+  partnerships exist in a dataset and how many boards they played
+  together.
+- [`name-similarity.md`](name-similarity.md) — scoring player-name
+  similarity to flag likely duplicates for human review.

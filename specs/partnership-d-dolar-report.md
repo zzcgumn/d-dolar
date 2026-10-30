@@ -63,7 +63,11 @@ CLI's job only.
 - The other two sibling defence statistics.
 - A per-opponent breakdown (grouping results by who was faced) — the
   report is deliberately opponent-agnostic.
-- Fuzzy or normalized player-name matching.
+- Fuzzy or normalized player-name matching — this report's own
+  matching stays exact and case-sensitive, deliberately; see
+  `specs/name-similarity.md` for a separate discovery tool that
+  scores candidate name pairs for human review, without ever
+  feeding a merge back into this report.
 - A CLI framework beyond the standard library's `argparse`.
 - Caching or memoizing `d_dolar_base` across repeated calls on the same
   board.
@@ -72,4 +76,4 @@ CLI's job only.
 
 ---
 last-updated: 2026-10-30
-related-plans: partnership-d-dolar-report, second-defender-tricks-lost, board-trajectory-columns
+related-plans: partnership-d-dolar-report, second-defender-tricks-lost, board-trajectory-columns, partnerships
