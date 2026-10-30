@@ -36,14 +36,14 @@ extension instead.
 ### What's guaranteed, and what isn't
 
 `tests/test_dds3_smoke.py` (skipped, not failed, when `dds3` hasn't been
-built) confirms: `dds3` is importable, `analyse_play_pbn` and
-`calc_all_tables_pbn` return the documented shape, and both agree
-exactly with a RawDB fixture hand's already-known `DD_W_C`/`DD_W_N`
-values (12 each) — computed independently, by a different DDS build
-(`endplay`/DDS 2.9.0, via `bridge-deals-ingest`). Two specific shape
-details turned out to differ from what reading `docs/python_interface.md`
-in isolation suggested, confirmed only once the build could actually be
-run:
+built) confirms: `dds3` is importable, `analyse_play_pbn`,
+`calc_all_tables_pbn`, and `solve_board_pbn` each return the documented
+shape, and all three agree exactly with a RawDB fixture hand's
+already-known `DD_W_C`/`DD_W_N` values (12 each) — computed
+independently, by a different DDS build (`endplay`/DDS 2.9.0, via
+`bridge-deals-ingest`). Three specific shape details turned out to
+differ from what reading `docs/python_interface.md` in isolation
+suggested, confirmed only once the build could actually be run:
 
 - `analyse_play_pbn`'s `"number"` is `len(result["tricks"])`, not a count
   of cards played (the two coincide only for a 1-card play).
@@ -51,6 +51,13 @@ run:
   submitted deal — DDS's traditional 20-board batch-chunk capacity
   leaking through the wrapper, not an actual board count.
   `len(result["tables"])` is the real count, and is correct.
+- `solve_board_pbn`'s `suit`/`rank`/`equals`/`score` tuples are always
+  length 13, padded with zeros past index `cards` (the number of
+  distinct strategic choices after DDS's own equivalence-grouping).
+  Its `score` is the trick count for the side MAKING that lead — the
+  defenders, not declarer's side — the opposite convention from
+  `analyse_play_pbn`'s `result["tricks"]` (see `specs/lead-matters.md`,
+  which depends on this).
 
 DDS's own solver correctness is **not** re-validated here beyond that one
 cross-check — that is upstream's own test suite's job (`python/tests/` at
@@ -68,5 +75,5 @@ the pinned commit), not d-dolar's to repeat.
   there, per its `docs/python_interface.md`).
 
 ---
-last-updated: 2026-10-28
-related-plans: add-dds3-dependency
+last-updated: 2026-10-30
+related-plans: add-dds3-dependency, lead-matters

@@ -14,9 +14,10 @@ composable building block over whatever rows the caller already has.
 `d_dolar.analysis.defence_statistics.with_defence_statistics(joined)`
 takes a `pl.LazyFrame` shaped like
 `d_dolar.rawdb.loader.load_joined_boards`'s return value, and
-returns a `pl.DataFrame` with the same rows plus seven columns: four
-raw double-dummy trajectory columns, and the three statistics
-already derived from them.
+returns a `pl.DataFrame` with the same rows plus eleven columns: four
+raw double-dummy trajectory columns, four raw opening-lead-choice
+columns (`specs/lead-matters.md`), and the three statistics derived
+from the first four.
 
 ### The four raw columns
 
@@ -37,6 +38,30 @@ Each is nullable independently, exactly under `lead_trajectory`'s or
 each primitive already computes internally, so a new statistic can
 be derived from them without triggering a new `dds3` call or
 reading `_board_trajectory`/`_trick_play`.
+
+### The four lead-choice columns
+
+- `lead_choices` (`pl.List(pl.String)`), `lead_choice_defender_tricks`
+  (`pl.List(pl.Int64)`) —
+  `d_dolar.statistics._lead_choices.lead_choices`'s result: every
+  distinct opening-lead choice available to the leader, paired with
+  the DEFENDERS' trick count for each (the opposite convention from
+  `lead_tricks`/`trajectory_tricks`'s declarer-side counts — see
+  `specs/lead-matters.md`).
+- `lead_matters` (`pl.Boolean`) —
+  `d_dolar.statistics.lead_matters.lead_matters`'s result: whether any
+  two of those choices differ.
+- `recorded_lead_defender_tricks` (`pl.Int64`) —
+  `d_dolar.statistics._lead_choices.recorded_lead_defender_tricks`'s
+  result: the DEFENDERS' trick count for the board's actual recorded
+  lead specifically (`Lead`, falling back to `Play`'s first card).
+
+`lead_choices`/`lead_choice_defender_tricks`/`lead_matters` share one
+`None` condition (`Declarer`/`Contract` falsy) — a strictly broader
+domain than every other column here, needing neither `Lead` nor
+`Play`. `recorded_lead_defender_tricks` has a different, narrower
+`None` condition instead, matching `lead_tricks`'/`d_dolar`'s (see
+`specs/lead-matters.md`).
 
 ### The three derived columns
 
@@ -86,19 +111,34 @@ trajectory columns are null with no recorded `Lead` to explain it.
 The still-demonstrated **independent** direction remains `Lead`
 present with `Play` absent (`BoardUID 1499299`).
 
+### Cross-checks between the lead-choice and trajectory columns
+
+Two invariants hold wherever both sides are non-null, verified against
+real `dds3` output on `BoardUID 1499299` and `BoardUID 408320`
+(`tests/analysis/test_defence_statistics.py`):
+
+- `recorded_lead_defender_tricks == 13 - lead_tricks[1]`.
+- `lead_matters is False` implies `d_dolar == 1`.
+
+Both are consistency assertions between two independent `dds3` entry
+points (`solve_board_pbn` vs. `analyse_play_pbn`), not a shared
+computation — see `specs/lead-matters.md`.
+
 ### How it avoids doubling the double-dummy work
 
 Both drop columns are derived from one call to
-`d_dolar.statistics._board_trajectory.board_trajectory` per row, and
+`d_dolar.statistics._board_trajectory.board_trajectory` per row,
 `d_dolar` is derived from one call to
-`d_dolar.statistics._board_trajectory.lead_trajectory` per row — not
+`d_dolar.statistics._board_trajectory.lead_trajectory` per row, and
+the four lead-choice columns are derived from one call to
+`d_dolar.statistics._lead_choices._solve_opening_lead` per row — not
 from calling
 `second_defender_tricks_lost`/`leader_tricks_lost_after_lead`/
-`d_dolar_base` directly, each of which would independently re-run
-the same `dds3.analyse_play_pbn` call. See
-`specs/second-defender-tricks-lost.md`,
-`specs/leader-tricks-lost-after-lead.md`, and `specs/d-dolar.md` for
-these primitives themselves.
+`d_dolar_base`/`lead_choices`/`recorded_lead_defender_tricks`
+directly, each of which would independently re-run the same
+underlying `dds3` call. See `specs/second-defender-tricks-lost.md`,
+`specs/leader-tricks-lost-after-lead.md`, `specs/d-dolar.md`, and
+`specs/lead-matters.md` for these primitives themselves.
 
 ## Out of scope
 
@@ -114,4 +154,4 @@ these primitives themselves.
 
 ---
 last-updated: 2026-10-30
-related-plans: defence-statistics-frame, board-trajectory-columns
+related-plans: defence-statistics-frame, board-trajectory-columns, lead-matters

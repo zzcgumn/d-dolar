@@ -29,3 +29,6 @@ fact.
 - [`defence-statistics-frame.md`](defence-statistics-frame.md) —
   combining all three sibling statistics into one per-board frame,
   for analyzing how they interact.
+- [`lead-matters.md`](lead-matters.md) — whether a board's opening
+  lead was the only choice that mattered, using `dds3`'s
+  `solve_board_pbn` to evaluate every legal lead at once.
