@@ -42,3 +42,76 @@ def test_with_defence_statistics_adds_three_columns_matching_each_statistic() ->
         for row in result.iter_rows(named=True)
     }
     assert by_board == _EXPECTED
+
+
+def test_with_defence_statistics_adds_the_four_raw_trajectory_columns() -> None:
+    from d_dolar.analysis.defence_statistics import with_defence_statistics
+
+    joined = load_joined_boards(FIXTURES)
+    result = with_defence_statistics(joined)
+
+    assert {
+        "lead_tricks",
+        "trajectory_leader",
+        "trajectory_seats",
+        "trajectory_tricks",
+    } <= set(result.columns)
+
+    by_board = {row["BoardUID"]: row for row in result.iter_rows(named=True)}
+
+    # BoardUID 946801: Lead empty, Play recorded -- the fallback
+    # makes lead_tricks non-null (and d_dolar == 1, see _EXPECTED).
+    assert by_board[946801]["lead_tricks"] == [10, 10]
+
+    # BoardUID 1499299: Lead present, Play absent -- lead_tricks is
+    # non-null but the Play-only trajectory columns are null.
+    assert by_board[1499299]["lead_tricks"] is not None
+    assert by_board[1499299]["trajectory_leader"] is None
+    assert by_board[1499299]["trajectory_seats"] is None
+    assert by_board[1499299]["trajectory_tricks"] is None
+
+    # BoardUID 1117730: all-pass board -- every raw column is null.
+    assert by_board[1117730]["lead_tricks"] is None
+    assert by_board[1117730]["trajectory_leader"] is None
+    assert by_board[1117730]["trajectory_seats"] is None
+    assert by_board[1117730]["trajectory_tricks"] is None
+
+
+def test_the_three_existing_statistics_are_pure_reductions_of_the_raw_columns() -> None:
+    """Proves the user's actual question: re-deriving d_dolar,
+    dropped_before_dummy, and dropped_over_dummy purely from the
+    four stored raw columns -- no call to d_dolar_base,
+    board_trajectory, lead_trajectory, or dds3 -- reproduces
+    with_defence_statistics' own values for every row."""
+    from d_dolar.analysis.defence_statistics import with_defence_statistics
+    from d_dolar.statistics._seats import OPPOSITE
+
+    joined = load_joined_boards(FIXTURES)
+    result = with_defence_statistics(joined)
+
+    for row in result.iter_rows(named=True):
+        tricks = row["lead_tricks"]
+        derived_d_dolar = None if tricks is None else (1 if tricks[1] == tricks[0] else 0)
+        assert derived_d_dolar == row["d_dolar"]
+
+        leader = row["trajectory_leader"]
+        seats = row["trajectory_seats"]
+        traj_tricks = row["trajectory_tricks"]
+        if leader is None:
+            assert row["dropped_before_dummy"] is None
+            assert row["dropped_over_dummy"] is None
+            continue
+
+        second_defender = OPPOSITE[leader]
+        derived_dropped_before_dummy = sum(
+            traj_tricks[i] - traj_tricks[i - 1]
+            for i in range(2, len(traj_tricks))
+            if seats[i - 1] == leader
+        )
+        derived_dropped_over_dummy = sum(
+            traj_tricks[i] - traj_tricks[i - 1]
+            for i in range(1, len(traj_tricks))
+            if seats[i - 1] == second_defender
+        )
+        assert derived_dropped_before_dummy == row["dropped_before_dummy"]
+        assert derived_dropped_over_dummy == row["dropped_over_dummy"]
