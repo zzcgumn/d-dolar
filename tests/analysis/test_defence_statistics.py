@@ -115,3 +115,75 @@ def test_the_three_existing_statistics_are_pure_reductions_of_the_raw_columns() 
         )
         assert derived_dropped_before_dummy == row["dropped_before_dummy"]
         assert derived_dropped_over_dummy == row["dropped_over_dummy"]
+
+
+def test_with_defence_statistics_adds_the_lead_choice_columns() -> None:
+    from d_dolar.analysis.defence_statistics import with_defence_statistics
+
+    joined = load_joined_boards(FIXTURES)
+    result = with_defence_statistics(joined)
+
+    assert {
+        "lead_choices",
+        "lead_choice_defender_tricks",
+        "lead_matters",
+        "recorded_lead_defender_tricks",
+    } <= set(result.columns)
+
+    by_board = {row["BoardUID"]: row for row in result.iter_rows(named=True)}
+
+    # BoardUID 1499299: every choice scores 1 -- the lead didn't
+    # matter, and the recorded lead (D5) matches that same score.
+    assert by_board[1499299]["lead_matters"] is False
+    assert set(by_board[1499299]["lead_choice_defender_tricks"]) == {1}
+    assert by_board[1499299]["recorded_lead_defender_tricks"] == 1
+
+    # BoardUID 408320: scores range 1-3 -- the lead did matter, and
+    # the recorded lead (H6) scored 2, not the best available (3).
+    assert by_board[408320]["lead_matters"] is True
+    assert set(by_board[408320]["lead_choice_defender_tricks"]) == {1, 2, 3}
+    assert by_board[408320]["recorded_lead_defender_tricks"] == 2
+
+
+def test_recorded_lead_defender_tricks_cross_checks_against_lead_tricks() -> None:
+    """The exact-value cross-check: wherever both are non-null,
+    recorded_lead_defender_tricks must equal 13 - lead_tricks[1] --
+    total tricks is always 13, so this is the same card's outcome
+    computed via two completely independent dds3 entry points
+    (solve_board_pbn vs. analyse_play_pbn)."""
+    from d_dolar.analysis.defence_statistics import with_defence_statistics
+
+    joined = load_joined_boards(FIXTURES)
+    result = with_defence_statistics(joined)
+
+    checked = 0
+    for row in result.iter_rows(named=True):
+        recorded = row["recorded_lead_defender_tricks"]
+        tricks = row["lead_tricks"]
+        if recorded is None or tricks is None:
+            continue
+        assert recorded == 13 - tricks[1]
+        checked += 1
+    assert checked >= 2  # at least BoardUID 1499299 and 408320
+
+
+def test_lead_matters_false_implies_d_dolar_optimal() -> None:
+    """The Boolean cross-check: wherever both are non-null,
+    lead_matters is False must imply d_dolar == 1 -- if no possible
+    lead could have done better, the actual lead can't have been
+    suboptimal."""
+    from d_dolar.analysis.defence_statistics import with_defence_statistics
+
+    joined = load_joined_boards(FIXTURES)
+    result = with_defence_statistics(joined)
+
+    lead_matters_false_checked = 0
+    for row in result.iter_rows(named=True):
+        lead_matters = row["lead_matters"]
+        d_dolar = row["d_dolar"]
+        if lead_matters is None or d_dolar is None:
+            continue
+        if lead_matters is False:
+            assert d_dolar == 1
+            lead_matters_false_checked += 1
+    assert lead_matters_false_checked >= 1  # BoardUID 1499299
