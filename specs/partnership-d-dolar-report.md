@@ -31,9 +31,10 @@ Given two player names, three summaries, each shaped
   board already counted in the partnership summary would also inflate
   "other partners."
 
-`boards_judged` counts boards with a recorded `Lead` (`d_dolar_base`
-returns `0` or `1`); `boards_defended - boards_judged` is boards with
-no recorded lead. `d_dolar_rate` is `boards_optimal / boards_judged`,
+`boards_judged` counts boards `d_dolar_base` judges: a recorded
+`Lead`, or, when `Lead` is absent, a recorded `Play` whose first
+card is used as the lead (`d_dolar_base` returns `0` or `1`);
+`boards_defended - boards_judged` is boards with neither. `d_dolar_rate` is `boards_optimal / boards_judged`,
 or `None` when `boards_judged == 0` — never a `ZeroDivisionError`.
 
 The report does not filter or group by opponent identity: it
@@ -69,5 +70,5 @@ CLI's job only.
   `d_dolar.rawdb.validate.check_invariants`'s job, not this report's.
 
 ---
-last-updated: 2026-10-29
-related-plans: partnership-d-dolar-report, second-defender-tricks-lost
+last-updated: 2026-10-30
+related-plans: partnership-d-dolar-report, second-defender-tricks-lost, board-trajectory-columns

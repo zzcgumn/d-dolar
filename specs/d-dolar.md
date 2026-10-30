@@ -10,10 +10,11 @@ also computes (`specs/second-defender-tricks-lost.md` and
 
 ### What `d_dolar_base` computes
 
-`d_dolar.statistics.d_dolar.d_dolar_base(hands, declarer, contract, lead)`
-takes the board's full deal (`Hands`, PBN format), the declaring seat
-(`Declarer`), the contract (`Contract`, e.g. `"4DX"`), and the card that
-was actually led (`Lead`) — the same strings `d_dolar.rawdb.loader`
+`d_dolar.statistics.d_dolar.d_dolar_base(hands, declarer, contract,
+lead, play)` takes the board's full deal (`Hands`, PBN format), the
+declaring seat (`Declarer`), the contract (`Contract`, e.g.
+`"4DX"`), the card that was actually led (`Lead`), and the full
+recorded play (`Play`) — the same strings `d_dolar.rawdb.loader`
 produces. It returns:
 
 - `1` if the lead cost the defence nothing: with double-dummy-optimal
@@ -22,11 +23,25 @@ produces. It returns:
 - `0` if the lead was legal but not optimal: it let declarer make at
   least one more trick than double-dummy optimal.
 - `None` if there is no lead to judge: an all-pass board (`declarer` is
-  empty), a board whose opening lead was never recorded (`lead` is
-  empty), or a board whose recorded `lead` the computed opening leader
-  doesn't actually hold (a RawDB data defect, not a malformed-input
-  case — see `specs/rawdb-import.md`). Falsy `contract` is treated the
+  empty), a board with neither a recorded `lead` nor a recorded `play`
+  (nothing at all to treat as the opening lead), or a board whose
+  effective lead (see below) the computed opening leader doesn't
+  actually hold (a RawDB data defect, not a malformed-input case —
+  see `specs/rawdb-import.md`). Falsy `contract` is treated the
   same way, defensively.
+
+### Which card counts as the opening lead
+
+`lead` is used whenever it's present — even on the ~105 documented
+boards where it disagrees with `play`'s first card
+(`specs/rawdb-import.md`); `d_dolar_base` never reconciles the two.
+Only when `lead` is empty does it fall back to `play`'s first card:
+by construction
+(`d_dolar.statistics._trick_play.attribute_cards` assigns trick
+seats by rotation starting from the opening leader) that card is
+already attributable to the leader, so there is no second,
+conflicting claim to reconcile in that case. `None` only when
+neither supplies a usable card.
 
 The opening leader is derived, not taken as input: it is the seat to
 `declarer`'s left, i.e. the next seat clockwise in the standard
@@ -36,18 +51,22 @@ notrump), ignoring any doubling annotation after it.
 
 ### How it is computed
 
-Via `dds3.analyse_play_pbn` (see `specs/dds3-dependency.md`) — DDS's own
+`d_dolar_base` is a thin reduction over
+`d_dolar.statistics._board_trajectory.lead_trajectory`, the sibling
+of `board_trajectory` (`specs/second-defender-tricks-lost.md`) that
+computes the raw `[before, after]` trick-count pair. Via
+`dds3.analyse_play_pbn` (see `specs/dds3-dependency.md`) — DDS's own
 first-party Python module, vendored as a git submodule at tag `v3.1.1`
 and built with Bazel, independent of the `DD_<seat>_<strain>` figures
 already in `hands.csv` (which come from `bridge-deals-ingest`'s own
-`endplay`/DDS 2.9.0 call). `analyse_play_pbn(hands, play=lead,
+`endplay`/DDS 2.9.0 call). `analyse_play_pbn(hands, play=effective_lead,
 trump=..., first=...)` returns the double-dummy trick count for
-declarer's side both before and after the lead is played (`result["tricks"]`,
-a 2-element list for a single-card `play`); the lead is optimal exactly
-when those two numbers are equal. This is a position-specific
-double-dummy solve — not derivable from `hands.csv`'s whole-table
-`DD_<seat>_<strain>` columns alone, which only give the result *before*
-anything is played.
+declarer's side both before and after the effective lead is played
+(`result["tricks"]`, a 2-element list for a single-card `play`); the
+lead is optimal exactly when those two numbers are equal. This is a
+position-specific double-dummy solve — not derivable from
+`hands.csv`'s whole-table `DD_<seat>_<strain>` columns alone, which
+only give the result *before* anything is played.
 
 This package originally used `endplay` (a PyPI package that vendors its
 own, older build of DDS — 2.9.0) for this, since it was a plain pip
@@ -73,5 +92,5 @@ was first tested against: both DDS builds agree exactly (see
   checks on RawDB data belong.
 
 ---
-last-updated: 2026-10-29
-related-plans: none (direct implementation, no make-plan/make-tasks run for this change); partnership-d-dolar-report, leader-tricks-lost-after-lead, d-dolar-lead-ownership-check
+last-updated: 2026-10-30
+related-plans: none (direct implementation, no make-plan/make-tasks run for this change); partnership-d-dolar-report, leader-tricks-lost-after-lead, d-dolar-lead-ownership-check, board-trajectory-columns
