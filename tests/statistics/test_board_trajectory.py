@@ -81,6 +81,12 @@ def test_lead_trajectory_missing_declarer_returns_none() -> None:
     assert lead_trajectory(_TRIVIAL_DEAL, None, "3N", "DA", None) is None
 
 
+def test_lead_trajectory_missing_contract_returns_none() -> None:
+    from d_dolar.statistics._board_trajectory import lead_trajectory
+
+    assert lead_trajectory(_TRIVIAL_DEAL, "E", "", "DA", None) is None
+
+
 def test_lead_trajectory_both_lead_and_play_missing_returns_none() -> None:
     from d_dolar.statistics._board_trajectory import lead_trajectory
 

@@ -71,16 +71,20 @@ in general, null-correlated: a board can have `Lead` but no `Play`
 used to be: since `lead_trajectory` now falls back to `Play`'s first
 card when `Lead` is absent (`specs/d-dolar.md`), a board with `Play`
 but no `Lead` no longer makes `lead_tricks` null on that account
-alone — `lead_tricks`'s and the trajectory columns' null-ness
-instead become *correlated* through `Play`'s own validity in that
-case, since both `lead_trajectory`'s and `board_trajectory`'s
-card-ownership checks test the exact same first card against the
-exact same seat's full hand when `Lead` is absent, so they succeed
-or fail together (`BoardUID 946801`: `Lead` empty, `Play` present
-and valid — `lead_tricks` and all three trajectory columns are
-present together, not one without the other). The still-
-demonstrated **independent** direction remains `Lead` present with
-`Play` absent (`BoardUID 1499299`).
+alone — `lead_trajectory`'s and `board_trajectory`'s card-ownership
+checks test the exact same first card against the exact same seat's
+full hand when `Lead` is absent, so *that one check* passes or fails
+identically for both (`BoardUID 946801`: `Lead` empty, `Play`
+present and valid — `lead_tricks` and all three trajectory columns
+are present together, not one without the other). This is not a
+blanket guarantee, though: `board_trajectory` additionally runs
+`attribute_cards` over the *entire* `Play` string, which can still
+fail further in (e.g. a structurally corrupted `Play` —
+`specs/rawdb-import.md`'s `BoardUID 770156`) even when the first
+card is validly held, leaving `lead_tricks` non-null while the
+trajectory columns are null with no recorded `Lead` to explain it.
+The still-demonstrated **independent** direction remains `Lead`
+present with `Play` absent (`BoardUID 1499299`).
 
 ### How it avoids doubling the double-dummy work
 

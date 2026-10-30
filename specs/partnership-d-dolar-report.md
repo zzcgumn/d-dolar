@@ -34,8 +34,9 @@ Given two player names, three summaries, each shaped
 `boards_judged` counts boards `d_dolar_base` judges: a recorded
 `Lead`, or, when `Lead` is absent, a recorded `Play` whose first
 card is used as the lead (`d_dolar_base` returns `0` or `1`);
-`boards_defended - boards_judged` is boards with neither. `d_dolar_rate` is `boards_optimal / boards_judged`,
-or `None` when `boards_judged == 0` — never a `ZeroDivisionError`.
+`boards_defended - boards_judged` is boards with neither.
+`d_dolar_rate` is `boards_optimal / boards_judged`, or `None` when
+`boards_judged == 0` — never a `ZeroDivisionError`.
 
 The report does not filter or group by opponent identity: it
 aggregates over every board the partnership (or player) defended,
