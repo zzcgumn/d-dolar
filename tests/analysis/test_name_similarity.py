@@ -110,3 +110,69 @@ def test_distinct_names_drops_nulls() -> None:
 
     assert None not in result
     assert set(result) == {"Jane Smith", "Bob Jones"}
+
+
+def test_candidate_pairs_matches_known_threshold_boundary() -> None:
+    from d_dolar.analysis.name_similarity import candidate_pairs, name_similarity
+
+    names = ["Jane Smith", "Jane Smyth", "Bob Jones"]
+    score = name_similarity("Jane Smith", "Jane Smyth")
+
+    assert candidate_pairs(names, 0, len(names), score + 0.01) == []
+    assert candidate_pairs(names, 0, len(names), score - 0.01) == [
+        ("Jane Smith", "Jane Smyth", score)
+    ]
+
+
+def test_candidate_pairs_full_range_matches_brute_force_combinations() -> None:
+    import itertools
+
+    from d_dolar.analysis.name_similarity import candidate_pairs, name_similarity
+
+    names = ["Jane Smith", "JANE SMYTH", "Bob Jones", "Bob Jonas", "Carol King"]
+    threshold = 0.5
+
+    expected = sorted(
+        (a, b, score)
+        for a, b in itertools.combinations(names, 2)
+        if (score := name_similarity(a, b)) >= threshold
+    )
+    actual = sorted(candidate_pairs(names, 0, len(names), threshold))
+
+    assert actual == expected
+
+
+def test_candidate_pairs_chunked_concatenation_matches_single_chunk() -> None:
+    from d_dolar.analysis.name_similarity import candidate_pairs
+
+    names = [
+        "Jane Smith",
+        "JANE SMYTH",
+        "Bob Jones",
+        "Bob Jonas",
+        "Carol King",
+        "Carol Kingley",
+    ]
+    threshold = 0.5
+    mid = len(names) // 2
+
+    single = candidate_pairs(names, 0, len(names), threshold)
+    chunked = candidate_pairs(names, 0, mid, threshold) + candidate_pairs(
+        names, mid, len(names), threshold
+    )
+
+    assert sorted(single) == sorted(chunked)
+    assert len(chunked) == len(set(chunked))
+
+
+def test_candidate_pairs_rejects_invalid_start_stop() -> None:
+    from d_dolar.analysis.name_similarity import candidate_pairs
+
+    names = ["A", "B", "C"]
+
+    with pytest.raises(ValueError):
+        candidate_pairs(names, -1, 3, 0.85)
+    with pytest.raises(ValueError):
+        candidate_pairs(names, 0, 4, 0.85)
+    with pytest.raises(ValueError):
+        candidate_pairs(names, 2, 1, 0.85)

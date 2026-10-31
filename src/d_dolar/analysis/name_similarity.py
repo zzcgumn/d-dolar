@@ -30,6 +30,43 @@ def name_similarity(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, normalize_name(a), normalize_name(b)).ratio()
 
 
+def candidate_pairs(
+    names: list[str], start: int, stop: int, threshold: float
+) -> list[tuple[str, str, float]]:
+    """Pairs (names[p], names[q]) for p in [start, stop), q in
+    (p, len(names)) -- the upper-triangular slice of the full
+    all-pairs sweep over `names` that chunk [start, stop) owns.
+
+    This is the ONLY way to split an O(n^2) all-pairs comparison into
+    independent chunks without double-counting work or needing a
+    merge/de-dup step afterwards: every unordered pair across the
+    whole `names` list is produced by exactly one chunk, because each
+    name is compared only against names at a STRICTLY LATER index in
+    the same fixed list -- never against the full list. (Comparing a
+    chunk against the full list instead was tried and rejected: it
+    double-counts every cross-chunk pair, once from each side, and
+    double-counts within-chunk pairs too, since a chunk is itself a
+    subset of the full list it would be compared against.) Chunk
+    results can therefore be concatenated directly.
+
+    `names` must be a fixed, deterministically-ordered list across
+    calls meant to be combined -- see distinct_names. Raises
+    ValueError if start < 0, stop > len(names), or start > stop."""
+    n = len(names)
+    if start < 0 or stop > n or start > stop:
+        raise ValueError(f"invalid chunk [{start}, {stop}) for {n} names")
+
+    out: list[tuple[str, str, float]] = []
+    for p in range(start, stop):
+        a = names[p]
+        for q in range(p + 1, n):
+            b = names[q]
+            score = name_similarity(a, b)
+            if score >= threshold:
+                out.append((a, b, score))
+    return out
+
+
 def distinct_names(joined: pl.LazyFrame) -> list[str]:
     """Collects the distinct non-null name universe from
     North/East/South/West across `joined`, deduplicating by
