@@ -30,6 +30,26 @@ def name_similarity(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, normalize_name(a), normalize_name(b)).ratio()
 
 
+def distinct_names(joined: pl.LazyFrame) -> list[str]:
+    """Collects the distinct non-null name universe from
+    North/East/South/West across `joined`, deduplicating by
+    normalize_name (first-seen representative wins). Returned sorted
+    by normalize_name(name) -- a FIXED, deterministic order two calls
+    against the same data always agree on, which candidate_pairs'
+    chunk index ranges depend on for correctness: Polars' own
+    `.unique().collect()` order is not a documented stable-order
+    guarantee to rely on across runs/processes."""
+    names_frame = pl.concat(
+        [joined.select(pl.col(column).alias("name")) for column in _SEAT_COLUMNS]
+    )
+    names = names_frame.filter(pl.col("name").is_not_null()).unique().collect()["name"].to_list()
+
+    seen: dict[str, str] = {}
+    for name in names:
+        seen.setdefault(normalize_name(name), name)
+    return sorted(seen.values(), key=normalize_name)
+
+
 def likely_duplicate_names(
     joined: pl.LazyFrame, threshold: float = 0.85
 ) -> list[tuple[str, str, float]]:

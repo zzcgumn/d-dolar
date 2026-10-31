@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import polars as pl
 import pytest
 
 from d_dolar.rawdb.loader import load_joined_boards
@@ -70,3 +71,42 @@ def test_likely_duplicate_names_excludes_the_real_distinct_partnership() -> None
 
     pairs = [{a, b} for a, b, _ in candidates]
     assert {"WELKER JACINT", "WELKER KATALIN"} not in pairs
+
+
+def test_distinct_names_dedupes_and_sorts_deterministically() -> None:
+    from d_dolar.analysis.name_similarity import distinct_names, normalize_name
+
+    joined = pl.LazyFrame(
+        {
+            "North": ["Jane Smith", "JANE SMITH "],
+            "East": ["Ann Lee", None],
+            "South": ["Bob Jones", "Carol King"],
+            "West": [None, "Dan Fox"],
+        }
+    )
+
+    result = distinct_names(joined)
+
+    assert len(result) == 5
+    assert [normalize_name(n) for n in result] == sorted(
+        {"jane smith", "ann lee", "bob jones", "carol king", "dan fox"}
+    )
+    assert distinct_names(joined) == result  # deterministic across calls
+
+
+def test_distinct_names_drops_nulls() -> None:
+    from d_dolar.analysis.name_similarity import distinct_names
+
+    joined = pl.LazyFrame(
+        {
+            "North": ["Jane Smith", None],
+            "East": [None, None],
+            "South": ["Bob Jones", None],
+            "West": [None, None],
+        }
+    )
+
+    result = distinct_names(joined)
+
+    assert None not in result
+    assert set(result) == {"Jane Smith", "Bob Jones"}
