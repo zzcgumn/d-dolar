@@ -64,8 +64,12 @@ own exact-match posture for callers who explicitly want it.
 - A CLI — returns a `DataFrame` for further programmatic/notebook
   use, matching `d_dolar.analysis.defence_statistics`'s own
   posture.
+- A ready-to-run tool that discovers and tentatively merges
+  likely-duplicate names end to end — see `docs/dedup_sweep.md`,
+  built on top of this module's `aliases` parameter rather than
+  inside it.
 - A new `d_dolar.rawdb.validate.check_invariants` check.
 
 ---
-last-updated: 2026-10-30
-related-plans: partnerships
+last-updated: 2026-10-31
+related-plans: partnerships, dedup-sweep

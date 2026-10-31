@@ -142,9 +142,13 @@ improvement, not built here.
   `candidate_pairs` make chunking possible; running multiple chunks
   concurrently (threads, processes, or across machines) is not built
   here.
+- A ready-to-run tool that actually does this chunking/parallel
+  execution and the connected-components merging downstream of it —
+  see `docs/dedup_sweep.md`, built on top of this module rather than
+  inside it.
 - Any change to `d_dolar.reports.partnership_d_dolar`'s exact-match
   name matching — see `specs/partnership-d-dolar-report.md`.
 
 ---
 last-updated: 2026-10-31
-related-plans: partnerships, candidate-pairs
+related-plans: partnerships, candidate-pairs, dedup-sweep
