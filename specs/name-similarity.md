@@ -67,8 +67,12 @@ way.
 
 Implemented via `distinct_names`/`candidate_pairs` (below) composed
 together in the single-chunk case; this is an internal detail —
-`likely_duplicate_names`'s own signature and behaviour are unchanged
-by it.
+`likely_duplicate_names`'s signature, and its observable behaviour
+(the returned candidate *set* and each pair's score), are unchanged
+by it. The per-pair `(name_a, name_b)` orientation and the relative
+order of ties at equal scores are not part of the contract and were
+never guaranteed — both can shift when the extraction order
+underneath changes, as it did with this refactor.
 
 ### Chunking a comparison sweep
 
@@ -83,10 +87,13 @@ into this list*, not by name.
 `d_dolar.analysis.name_similarity.candidate_pairs(names, start, stop,
 threshold)` compares `names[p]` (for `p` in `[start, stop)`) only
 against `names[q]` for `q` in `range(p + 1, len(names))` — never
-against the full list. This is the only correct way to split the
-`O(n^2)` sweep into independent chunks: every unordered pair across
-`names` is produced by exactly one chunk, so chunk results can be
-concatenated directly, with no merge or de-duplication step.
+against the full list. This splits the `O(n^2)` sweep into
+independent chunks that need no merge or de-duplication step
+afterwards: every unordered pair across `names` is produced by
+exactly one chunk, so chunk results can be concatenated directly.
+(Other correct schemes exist, such as chunking by flat index into
+the triangular pair enumeration directly — this one was chosen for
+being the simplest to reason about and to verify against real data.)
 `likely_duplicate_names(joined, threshold)` is exactly
 `candidate_pairs(distinct_names(joined), 0, len(names), threshold)`,
 sorted descending by score — the single-chunk case.

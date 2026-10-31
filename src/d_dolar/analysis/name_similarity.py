@@ -36,10 +36,10 @@ def candidate_pairs(
     (p, len(names)) -- the upper-triangular slice of the full
     all-pairs sweep over `names` that chunk [start, stop) owns.
 
-    This is the ONLY way to split an O(n^2) all-pairs comparison into
-    independent chunks without double-counting work or needing a
-    merge/de-dup step afterwards: every unordered pair across the
-    whole `names` list is produced by exactly one chunk, because each
+    This splits an O(n^2) all-pairs comparison into independent
+    chunks without double-counting work or needing a merge/de-dup
+    step afterwards: every unordered pair across the whole `names`
+    list is produced by exactly one chunk, because each
     name is compared only against names at a STRICTLY LATER index in
     the same fixed list -- never against the full list. (Comparing a
     chunk against the full list instead was tried and rejected: it
