@@ -65,6 +65,56 @@ point, not a universal constant; a caller with different data
 should recalibrate against their own confirmed examples the same
 way.
 
+Implemented via `distinct_names`/`candidate_pairs` (below) composed
+together in the single-chunk case; this is an internal detail —
+`likely_duplicate_names`'s own signature and behaviour are unchanged
+by it.
+
+### Chunking a comparison sweep
+
+`d_dolar.analysis.name_similarity.distinct_names(joined)` is
+`likely_duplicate_names`'s name-extraction step, factored out: the
+same distinct non-null name universe, deduplicated by
+`normalize_name`, but returned **sorted by `normalize_name(name)`** —
+a fixed, deterministic order two calls against the same data always
+agree on. This matters because `candidate_pairs` chunks by *index
+into this list*, not by name.
+
+`d_dolar.analysis.name_similarity.candidate_pairs(names, start, stop,
+threshold)` compares `names[p]` (for `p` in `[start, stop)`) only
+against `names[q]` for `q` in `range(p + 1, len(names))` — never
+against the full list. This is the only correct way to split the
+`O(n^2)` sweep into independent chunks: every unordered pair across
+`names` is produced by exactly one chunk, so chunk results can be
+concatenated directly, with no merge or de-duplication step.
+`likely_duplicate_names(joined, threshold)` is exactly
+`candidate_pairs(distinct_names(joined), 0, len(names), threshold)`,
+sorted descending by score — the single-chunk case.
+
+A different chunking scheme — comparing each chunk against the
+*full* name list, then combining — was considered and rejected: it
+double-counts every cross-chunk pair (once while processing each
+side's own chunk) and every within-chunk pair (since a chunk is
+itself a subset of the full list it would be compared against),
+roughly doubling the real work and requiring a de-dup step the
+index-range design doesn't need.
+
+**Confirmed against the real RawDB dataset** (not the test
+fixtures — a private, much larger real dataset): 27,531 distinct
+names after `normalize_name` dedup; a full sweep is 378,964,215
+pairs. `name_similarity` benchmarked at ~6.0 microseconds/pair, so a
+full single-threaded sweep is ~38 minutes. Chunk `[0, 1000)` of that
+real name list (owning 27,030,500 pairs) completed in 157.0s and
+found 547 real candidates `>= 0.85` — genuine near-duplicates from
+real data entry (e.g. `ALAN LE BENDIG`/`ALAN LEBENDIG` at `0.963`,
+`ALLEGRINI P`/`ALLEGRINI P.` at `0.957`), confirming the chunked
+design finds the same kind of signal as a single full sweep, at
+real-data scale.
+
+Raises `ValueError` if `start < 0`, `stop > len(names)`, or
+`start > stop` — a chunk-boundary bug should fail loudly rather than
+silently truncate the way a bare slice would.
+
 ### Performance
 
 `O(n^2)` over the deduplicated distinct-name count (not the row
@@ -81,9 +131,13 @@ improvement, not built here.
   `rapidfuzz`/`jellyfish`) — `difflib` is stdlib and sufficient for
   what's confirmed so far.
 - A pre-filtering/blocking optimization for the `O(n^2)` comparison.
+- Actual parallel/distributed execution of chunks — `distinct_names`/
+  `candidate_pairs` make chunking possible; running multiple chunks
+  concurrently (threads, processes, or across machines) is not built
+  here.
 - Any change to `d_dolar.reports.partnership_d_dolar`'s exact-match
   name matching — see `specs/partnership-d-dolar-report.md`.
 
 ---
-last-updated: 2026-10-30
-related-plans: partnerships
+last-updated: 2026-10-31
+related-plans: partnerships, candidate-pairs
