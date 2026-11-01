@@ -28,9 +28,19 @@ all report declarer's-side trick counts via `analyse_play_pbn`'s
 `result["tricks"]`. This is the single easiest thing to get backwards
 when working with this module.
 
-`None` only if `declarer` or `contract` is falsy. This needs no `Lead`
-or `Play` at all, so it is non-null on a strictly larger set of boards
-than `d_dolar_base`/`lead_trajectory`.
+`None` if `declarer` or `contract` is falsy, or if `contract` doesn't
+encode a playable strain (`contract[1]` isn't one of `S`/`H`/`D`/`C`/`N`).
+That last case is a real RawDB quirk, not a hypothetical: an all-pass
+board's `Contract` is `"AP"`, and `Declarer` is *not* reliably empty
+on those rows — 629 real all-pass boards have it filled in anyway
+(`specs/rawdb-import.md`) — so `declarer`/`contract` can both be
+truthy with nothing playable to solve. `d_dolar_base`/`lead_trajectory`
+never need this check explicitly: they bail out on an empty
+effective lead (no `Lead` or `Play` to fall back to, on an all-pass
+board) before ever indexing into `contract`. `lead_choices` needs
+neither `Lead` nor `Play`, so it has no such check to fall back on —
+this one has to be explicit. Aside from that, it is non-null on a
+strictly larger set of boards than `d_dolar_base`/`lead_trajectory`.
 
 ### How it is computed
 
@@ -119,5 +129,5 @@ output on `BoardUID 1499299` and `BoardUID 408320`, see
 - Caching across repeated evaluations of the same board.
 
 ---
-last-updated: 2026-10-30
-related-plans: lead-matters
+last-updated: 2026-11-01
+related-plans: lead-matters, all-pass-contract-fix

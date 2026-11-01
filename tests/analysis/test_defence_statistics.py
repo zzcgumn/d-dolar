@@ -117,6 +117,38 @@ def test_the_three_existing_statistics_are_pure_reductions_of_the_raw_columns() 
         assert derived_dropped_over_dummy == row["dropped_over_dummy"]
 
 
+def test_with_defence_statistics_handles_all_pass_contract_with_declarer_filled() -> None:
+    # Real RawDB quirk (specs/rawdb-import.md): Contract == "AP"
+    # boards don't reliably have an empty Declarer -- 629 real boards
+    # have it filled in anyway. Previously this crashed
+    # with_defence_statistics with a KeyError on contract[1] ("P"
+    # isn't a strain) inside _solve_opening_lead, which (unlike
+    # lead_trajectory/board_trajectory) has no Lead/Play to fall back
+    # on to short-circuit first. No fixture board reproduces this
+    # (the one all-pass fixture board, 1117730, happens to have an
+    # empty Declarer), so this builds the row directly.
+    from d_dolar.analysis.defence_statistics import with_defence_statistics
+
+    deal = "N:AKQJT98765432... .AKQJT98765432.. ..AKQJT98765432. ...AKQJT98765432"
+    joined = pl.LazyFrame(
+        {
+            "Hands": [deal],
+            "Declarer": ["E"],
+            "Contract": ["AP"],
+            "Lead": [None],
+            "Play": [""],
+        }
+    )
+
+    result = with_defence_statistics(joined)
+    row = result.row(0, named=True)
+    assert row["lead_choices"] is None
+    assert row["lead_choice_defender_tricks"] is None
+    assert row["lead_matters"] is None
+    assert row["recorded_lead_defender_tricks"] is None
+    assert row["d_dolar"] is None
+
+
 def test_with_defence_statistics_adds_the_lead_choice_columns() -> None:
     from d_dolar.analysis.defence_statistics import with_defence_statistics
 

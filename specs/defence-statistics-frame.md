@@ -57,9 +57,19 @@ reading `_board_trajectory`/`_trick_play`.
   lead specifically (`Lead`, falling back to `Play`'s first card).
 
 `lead_choices`/`lead_choice_defender_tricks`/`lead_matters` share one
-`None` condition (`Declarer`/`Contract` falsy) — a strictly broader
-domain than every other column here, needing neither `Lead` nor
-`Play`. `recorded_lead_defender_tricks` has a different, narrower
+`None` condition (`Declarer`/`Contract` falsy, or `Contract` doesn't
+encode a playable strain) — a strictly broader domain than every
+other column here, needing neither `Lead` nor `Play`. That second
+clause covers a real RawDB quirk (`specs/rawdb-import.md`): an
+all-pass board's `Contract` is `"AP"`, and `Declarer` is *not*
+reliably empty on those rows (629 real all-pass boards have it
+filled in anyway) — so these three columns can be truthy-`Declarer`,
+truthy-`Contract`, and still have nothing playable to solve.
+`lead_trajectory`/`board_trajectory` never hit this case, because
+they bail out on an empty effective lead before ever indexing into
+`Contract` — an all-pass board has no `Lead`/`Play` to fall back to
+— but `lead_choices` needs neither, so it checks `Contract` directly
+instead. `recorded_lead_defender_tricks` has a different, narrower
 `None` condition instead, matching `lead_tricks`'/`d_dolar`'s (see
 `specs/lead-matters.md`).
 
@@ -153,5 +163,5 @@ underlying `dds3` call. See `specs/second-defender-tricks-lost.md`,
 - A new `d_dolar.rawdb.validate.check_invariants` check.
 
 ---
-last-updated: 2026-10-30
-related-plans: defence-statistics-frame, board-trajectory-columns, lead-matters
+last-updated: 2026-11-01
+related-plans: defence-statistics-frame, board-trajectory-columns, lead-matters, all-pass-contract-fix

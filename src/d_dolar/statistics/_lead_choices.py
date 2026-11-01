@@ -21,12 +21,23 @@ def _solve_opening_lead(
     """Internal: one solve_board_pbn call, sliced to its own `cards`
     count. Returns dds3's raw per-choice encoding -- (suit, rank,
     equals, score), each a tuple since slicing dds3's own
-    tuple-shaped result yields a tuple -- or None if
-    declarer/contract is falsy. lead_choices and
+    tuple-shaped result yields a tuple -- or None if declarer/contract
+    is falsy, or contract[1] isn't a real strain letter. That last
+    case covers a real RawDB quirk (specs/rawdb-import.md): an
+    all-pass board's Contract is "AP", and Declarer is NOT reliably
+    empty on those rows (confirmed: 629 real all-pass boards have
+    Declarer filled in anyway) -- so `declarer`/`contract` can both be
+    truthy on a board with no playable contract at all.
+    lead_trajectory/board_trajectory never hit this: they bail out on
+    an empty effective lead before ever indexing contract[1], and an
+    all-pass board has no Lead/Play to fall back to. lead_choices has
+    no such guard, because it needs neither -- it computes every
+    *possible* opening lead, not just the recorded one -- so this
+    check has to be explicit here instead. lead_choices and
     recorded_lead_defender_tricks both build on this single call;
     with_defence_statistics calls it directly too, so the one
     necessary solve per row is never repeated."""
-    if not declarer or not contract:
+    if not declarer or not contract or len(contract) < 2 or contract[1] not in STRAIN_TO_TRUMP:
         return None
     leader = LEADER_OF[declarer]
     trump = STRAIN_TO_TRUMP[contract[1]]
@@ -46,9 +57,10 @@ def lead_choices(
     double-dummy trick count the DEFENCE gets if that card is led
     -- the opposite convention from analyse_play_pbn's
     declarer-side tricks used by every other statistic in this
-    package. None only if declarer or contract is falsy -- this
-    needs no Lead or Play at all, so it is non-null on a strictly
-    larger set of boards than lead_tricks/d_dolar."""
+    package. None if declarer or contract is falsy, or contract
+    doesn't encode a playable strain (see _solve_opening_lead) --
+    this needs no Lead or Play at all, so it is non-null on a
+    strictly larger set of boards than lead_tricks/d_dolar."""
     solved = _solve_opening_lead(hands, declarer, contract)
     if solved is None:
         return None

@@ -23,6 +23,19 @@ def test_lead_choices_missing_contract_returns_none() -> None:
     assert lead_choices(deal, "E", "") is None
 
 
+def test_lead_choices_all_pass_contract_with_declarer_filled_returns_none() -> None:
+    # Real RawDB quirk (specs/rawdb-import.md): Contract == "AP" does
+    # NOT reliably come with an empty Declarer -- 629 real all-pass
+    # boards have Declarer filled in anyway. lead_choices must not
+    # crash (contract[1] == "P" is not a strain) and must still
+    # report "no lead to judge", the same as a genuinely empty
+    # Declarer would.
+    from d_dolar.statistics._lead_choices import lead_choices
+
+    deal = "N:AKQJT98765432... .AKQJT98765432.. ..AKQJT98765432. ...AKQJT98765432"
+    assert lead_choices(deal, "E", "AP") is None
+
+
 def test_lead_choices_works_with_no_recorded_lead_or_play_at_all() -> None:
     # lead_choices doesn't take Lead/Play parameters at all -- it's
     # computable from Hands/Declarer/Contract alone, a strictly
