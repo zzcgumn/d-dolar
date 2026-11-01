@@ -75,7 +75,14 @@ function exists to surface. It returns a list of violation descriptions
 It deliberately does **not** check that `Declarer` is empty whenever
 `Contract == "AP"` — real RawDB data violates that about as often as not
 (a source quirk, confirmed by scanning the full `boards.csv`: 629 all-pass
-boards with `Declarer` filled in against 642 with it empty).
+boards with `Declarer` filled in against 642 with it empty). The same
+laxness extends to `Lead` and `Play`: of the 1,271 all-pass boards, 7
+have a non-null `Lead` and 2 have a non-empty `Play` — rare, but not
+zero, and it has already caused a real crash (see
+`specs/defence-statistics-frame.md` and `specs/d-dolar.md`: an all-pass
+board with `Declarer` and `Lead` both filled in reaches
+`lead_trajectory`'s `contract[1]` lookup instead of bailing out on an
+empty effective lead first).
 
 **A known real-data violation**: running `check_invariants` against the
 full RawDB directory reports exactly one violation — 3 `boards.csv` rows
@@ -125,5 +132,5 @@ recorded" by the source format itself, not "unknown" — it is kept as
   validated board/deal/hand data into a Polars frame.
 
 ---
-last-updated: 2026-10-29
-related-plans: import-raw-bridge-deals-csv, second-defender-tricks-lost, d-dolar-lead-ownership-check
+last-updated: 2026-11-01
+related-plans: import-raw-bridge-deals-csv, second-defender-tricks-lost, d-dolar-lead-ownership-check, all-pass-contract-fix

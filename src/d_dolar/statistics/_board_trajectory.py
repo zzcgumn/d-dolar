@@ -20,8 +20,13 @@ def lead_trajectory(
     (by construction the leader's own card, per attribute_cards'
     rotation). None if neither `lead` nor `play` supplies a usable
     card, if `declarer`/`contract` is falsy, or if the resulting card
-    isn't held by the computed leader."""
-    if not declarer or not contract:
+    isn't held by the computed leader, or if `contract` doesn't
+    encode a playable strain (`contract[1]` isn't one of
+    `S`/`H`/`D`/`C`/`N` -- the real RawDB quirk documented in
+    `_solve_opening_lead`: an all-pass board's `Contract` is `"AP"`,
+    and `Declarer`/`Lead`/`Play` are NOT reliably empty on those
+    rows either)."""
+    if not declarer or not contract or len(contract) < 2 or contract[1] not in STRAIN_TO_TRUMP:
         return None
     effective_lead = lead if lead else (play.split("_")[0] if play else None)
     if not effective_lead:
@@ -51,9 +56,17 @@ def board_trajectory(
     double-dummy trick count for declarer's side after i cards
     (tricks[0] is the pre-play baseline). None under the same
     conditions second_defender_tricks_lost/leader_tricks_lost_after_lead
-    already return None for: falsy declarer/contract/play, or a Play
-    string that fails attribute_cards' card-ownership check."""
-    if not declarer or not contract or not play:
+    already return None for: falsy declarer/contract/play, a Play
+    string that fails attribute_cards' card-ownership check, or
+    `contract` not encoding a playable strain (see lead_trajectory
+    above -- the same real RawDB all-pass quirk applies here)."""
+    if (
+        not declarer
+        or not contract
+        or not play
+        or len(contract) < 2
+        or contract[1] not in STRAIN_TO_TRUMP
+    ):
         return None
 
     leader = LEADER_OF[declarer]

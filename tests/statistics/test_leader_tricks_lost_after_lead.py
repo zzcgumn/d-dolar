@@ -120,3 +120,13 @@ def test_corrupted_play_with_a_repeated_card_returns_none() -> None:
         hand["Hands"], board["Declarer"], board["Contract"], corrupted_play
     )
     assert result is None
+
+
+def test_all_pass_contract_with_declarer_and_play_filled_returns_none() -> None:
+    from d_dolar.statistics.leader_tricks_lost_after_lead import leader_tricks_lost_after_lead
+
+    # Real RawDB quirk (specs/rawdb-import.md): Contract == "AP" does
+    # NOT reliably come with empty Declarer/Play -- built on
+    # board_trajectory, this previously crashed with KeyError: 'P' on
+    # contract[1], since "AP"[1] == "P" is not a strain.
+    assert leader_tricks_lost_after_lead(_TRIVIAL_DEAL, "E", "AP", "H5_H2_HA_H9") is None

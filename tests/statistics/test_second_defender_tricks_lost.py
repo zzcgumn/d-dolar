@@ -86,6 +86,16 @@ def test_corrupted_play_with_a_repeated_card_returns_none() -> None:
     assert result is None
 
 
+def test_all_pass_contract_with_declarer_and_play_filled_returns_none() -> None:
+    from d_dolar.statistics.second_defender_tricks_lost import second_defender_tricks_lost
+
+    # Real RawDB quirk (specs/rawdb-import.md): Contract == "AP" does
+    # NOT reliably come with empty Declarer/Play -- built on
+    # board_trajectory, this previously crashed with KeyError: 'P' on
+    # contract[1], since "AP"[1] == "P" is not a strain.
+    assert second_defender_tricks_lost(_TRIVIAL_DEAL, "E", "AP", "H5_H2_HA_H9") is None
+
+
 def test_hands_with_fewer_than_four_seats_returns_none() -> None:
     from d_dolar.statistics.second_defender_tricks_lost import second_defender_tricks_lost
 

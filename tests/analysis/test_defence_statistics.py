@@ -149,6 +149,42 @@ def test_with_defence_statistics_handles_all_pass_contract_with_declarer_filled(
     assert row["d_dolar"] is None
 
 
+def test_with_defence_statistics_handles_all_pass_contract_with_lead_and_play_filled() -> None:
+    # Real RawDB quirk (specs/rawdb-import.md), reproduced for real:
+    # an all-pass board's Lead/Play are also not reliably empty.
+    # This crashed lead_trajectory with KeyError: 'P' on
+    # contract[1], since a non-empty Lead means lead_trajectory
+    # never hits its own empty-effective-lead bailout before
+    # indexing into contract. board_trajectory has the same
+    # vulnerability via its own non-empty Play.
+    from d_dolar.analysis.defence_statistics import with_defence_statistics
+
+    deal = "N:AKQJT98765432... .AKQJT98765432.. ..AKQJT98765432. ...AKQJT98765432"
+    joined = pl.LazyFrame(
+        {
+            "Hands": [deal],
+            "Declarer": ["E"],
+            "Contract": ["AP"],
+            "Lead": ["DA"],
+            "Play": ["DA_D2_D3_D4"],
+        }
+    )
+
+    result = with_defence_statistics(joined)
+    row = result.row(0, named=True)
+    assert row["lead_tricks"] is None
+    assert row["d_dolar"] is None
+    assert row["trajectory_leader"] is None
+    assert row["trajectory_seats"] is None
+    assert row["trajectory_tricks"] is None
+    assert row["dropped_before_dummy"] is None
+    assert row["dropped_over_dummy"] is None
+    assert row["lead_choices"] is None
+    assert row["lead_choice_defender_tricks"] is None
+    assert row["lead_matters"] is None
+    assert row["recorded_lead_defender_tricks"] is None
+
+
 def test_with_defence_statistics_adds_the_lead_choice_columns() -> None:
     from d_dolar.analysis.defence_statistics import with_defence_statistics
 

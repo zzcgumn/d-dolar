@@ -39,6 +39,17 @@ def test_corrupted_play_returns_none() -> None:
     assert result is None
 
 
+def test_all_pass_contract_with_declarer_and_play_filled_returns_none() -> None:
+    from d_dolar.statistics._board_trajectory import board_trajectory
+
+    # Real RawDB quirk (specs/rawdb-import.md): Contract == "AP" does
+    # NOT reliably come with empty Declarer/Play -- this previously
+    # crashed with KeyError: 'P' at STRAIN_TO_TRUMP[contract[1]],
+    # since "AP"[1] == "P" is not a strain.
+    deal = "N:AKQJT98765432... .AKQJT98765432.. ..AKQJT98765432. ...AKQJT98765432"
+    assert board_trajectory(deal, "E", "AP", "DA_D2_D3_D4") is None
+
+
 def test_returns_leader_seats_and_tricks_matching_both_statistics() -> None:
     from d_dolar.statistics._board_trajectory import board_trajectory
     from d_dolar.statistics._seats import OPPOSITE
@@ -128,3 +139,17 @@ def test_lead_trajectory_falls_back_to_plays_first_card_when_lead_absent() -> No
         hand["Hands"], board["Declarer"], board["Contract"], board["Lead"], board["Play"]
     )
     assert result == [10, 10]
+
+
+def test_lead_trajectory_all_pass_contract_with_declarer_and_lead_filled_returns_none() -> None:
+    from d_dolar.statistics._board_trajectory import lead_trajectory
+
+    # Real RawDB quirk (specs/rawdb-import.md): Contract == "AP" does
+    # NOT reliably come with empty Declarer/Lead/Play -- this
+    # previously crashed with KeyError: 'P' at
+    # STRAIN_TO_TRUMP[contract[1]], since "AP"[1] == "P" is not a
+    # strain, and nothing upstream short-circuits on a non-empty
+    # lead. declarer=E -> leader=South, who holds DA in the trivial
+    # deal, so this reaches the trump lookup rather than bailing out
+    # on the lead/card-ownership checks first.
+    assert lead_trajectory(_TRIVIAL_DEAL, "E", "AP", "DA", None) is None

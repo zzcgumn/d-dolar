@@ -33,11 +33,10 @@ from the first four.
   over the board's full recorded `Play`.
 
 Each is nullable independently, exactly under `lead_trajectory`'s or
-`board_trajectory`'s own existing `None` conditions — no new
-`None`-condition is introduced; these columns materialize values
-each primitive already computes internally, so a new statistic can
-be derived from them without triggering a new `dds3` call or
-reading `_board_trajectory`/`_trick_play`.
+`board_trajectory`'s own existing `None` conditions; these columns
+materialize values each primitive already computes internally, so a
+new statistic can be derived from them without triggering a new
+`dds3` call or reading `_board_trajectory`/`_trick_play`.
 
 ### The four lead-choice columns
 
@@ -65,13 +64,21 @@ all-pass board's `Contract` is `"AP"`, and `Declarer` is *not*
 reliably empty on those rows (629 real all-pass boards have it
 filled in anyway) — so these three columns can be truthy-`Declarer`,
 truthy-`Contract`, and still have nothing playable to solve.
-`lead_trajectory`/`board_trajectory` never hit this case, because
-they bail out on an empty effective lead before ever indexing into
-`Contract` — an all-pass board has no `Lead`/`Play` to fall back to
-— but `lead_choices` needs neither, so it checks `Contract` directly
-instead. `recorded_lead_defender_tricks` has a different, narrower
-`None` condition instead, matching `lead_tricks`'/`d_dolar`'s (see
-`specs/lead-matters.md`).
+
+`lead_tricks`/the trajectory columns carry the identical
+`Contract`-doesn't-encode-a-playable-strain check now too, inside
+`lead_trajectory`/`board_trajectory` themselves — an earlier version
+of this spec claimed they never needed it, reasoning that an
+all-pass board has no `Lead`/`Play` to fall back to, so they'd
+always bail out on an empty effective lead first. That reasoning was
+wrong: `Lead`/`Play` aren't reliably empty on all-pass rows either
+(confirmed by a real crash — `with_defence_statistics` raising
+`KeyError: 'P'` out of `lead_trajectory` on a genuine all-pass board
+with both `Declarer` and `Lead` filled in), so the empty-effective-
+lead bailout alone was not a reliable substitute for checking
+`Contract` directly. `recorded_lead_defender_tricks` has a
+different, narrower `None` condition instead, matching
+`lead_tricks`'/`d_dolar`'s (see `specs/lead-matters.md`).
 
 ### The three derived columns
 

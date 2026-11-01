@@ -28,7 +28,14 @@ produces. It returns:
   effective lead (see below) the computed opening leader doesn't
   actually hold (a RawDB data defect, not a malformed-input case —
   see `specs/rawdb-import.md`). Falsy `contract` is treated the
-  same way, defensively.
+  same way, defensively — as is a `contract` that doesn't encode a
+  playable strain (`contract[1]` isn't one of `S`/`H`/`D`/`C`/`N`):
+  a real RawDB quirk, not a hypothetical, since an all-pass board's
+  `Contract` is `"AP"` and its `Declarer`/`Lead`/`Play` are *not*
+  reliably empty either (`specs/rawdb-import.md`;
+  `specs/defence-statistics-frame.md` has the full account, including
+  why `lead_trajectory`'s/`board_trajectory`'s own empty-effective-lead
+  bailout does not reliably catch this).
 
 ### Which card counts as the opening lead
 
@@ -88,9 +95,14 @@ was first tested against: both DDS builds agree exactly (see
 - Caching across repeated evaluations of the same board.
 - Validating `declarer`/`contract` against a known domain before use —
   malformed input raises (`KeyError`) rather than being silently
-  tolerated; `d_dolar.rawdb.validate.check_invariants` is where domain
+  tolerated, with one deliberate exception: a `contract` whose second
+  character isn't a real strain letter returns `None` instead (see
+  above), because that specific shape is a confirmed, recurring RawDB
+  defect, not a hypothetical to guard against speculatively. Anything
+  else malformed (e.g. an unrecognised `declarer` seat letter) still
+  raises. `d_dolar.rawdb.validate.check_invariants` is where domain
   checks on RawDB data belong.
 
 ---
-last-updated: 2026-10-30
-related-plans: none (direct implementation, no make-plan/make-tasks run for this change); partnership-d-dolar-report, leader-tricks-lost-after-lead, d-dolar-lead-ownership-check, board-trajectory-columns
+last-updated: 2026-11-01
+related-plans: none (direct implementation, no make-plan/make-tasks run for this change); partnership-d-dolar-report, leader-tricks-lost-after-lead, d-dolar-lead-ownership-check, board-trajectory-columns, all-pass-contract-fix

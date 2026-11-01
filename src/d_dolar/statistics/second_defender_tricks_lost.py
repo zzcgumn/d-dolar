@@ -18,8 +18,11 @@ def second_defender_tricks_lost(
 
     None if there is no play to judge: an all-pass board (no declarer),
     a board with no recorded Play (distinct from -- and rarer than --
-    Lead), or a Play string that fails the card-ownership check (a
-    known, rare upstream data defect; see specs/rawdb-import.md)."""
+    Lead), a Play string that fails the card-ownership check (a
+    known, rare upstream data defect; see specs/rawdb-import.md), or
+    a Contract that doesn't encode a playable strain (the same
+    all-pass quirk that can leave Declarer/Play non-empty too --
+    see specs/rawdb-import.md and specs/d-dolar.md)."""
     trajectory = board_trajectory(hands, declarer, contract, play)
     if trajectory is None:
         return None

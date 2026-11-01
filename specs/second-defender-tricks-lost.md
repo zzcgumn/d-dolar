@@ -26,8 +26,13 @@ before it. `0` means the second defender played every one of their
 cards double-dummy optimally.
 
 It returns `None` when there is no play to judge: `declarer`,
-`contract`, or `play` is falsy, or the recorded `play` fails the
-card-ownership check below. `play` is a stricter requirement than
+`contract`, or `play` is falsy, the recorded `play` fails the
+card-ownership check below, or `contract` doesn't encode a playable
+strain (`contract[1]` isn't one of `S`/`H`/`D`/`C`/`N` — the same
+all-pass RawDB quirk documented in `specs/rawdb-import.md`/
+`specs/d-dolar.md`, where `Declarer` and even `Play` can be non-empty
+on an all-pass board despite there being nothing playable to solve).
+`play` is a stricter requirement than
 D-dolar's `lead` — a board can have a recorded opening lead with no
 full card-by-card play at all (confirmed on the full RawDB: roughly
 31% of boards with a recorded `Lead` have no `Play`), so this
@@ -107,5 +112,5 @@ summation's starting index differ between them.
   here.
 
 ---
-last-updated: 2026-10-29
-related-plans: second-defender-tricks-lost, leader-tricks-lost-after-lead, defence-statistics-frame
+last-updated: 2026-11-01
+related-plans: second-defender-tricks-lost, leader-tricks-lost-after-lead, defence-statistics-frame, all-pass-contract-fix

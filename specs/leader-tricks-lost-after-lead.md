@@ -67,5 +67,5 @@ from scoring the same card twice.
   data defect -- same posture as the other two statistics.
 
 ---
-last-updated: 2026-10-29
-related-plans: leader-tricks-lost-after-lead, defence-statistics-frame
+last-updated: 2026-11-01
+related-plans: leader-tricks-lost-after-lead, defence-statistics-frame, all-pass-contract-fix

@@ -34,13 +34,18 @@ That last case is a real RawDB quirk, not a hypothetical: an all-pass
 board's `Contract` is `"AP"`, and `Declarer` is *not* reliably empty
 on those rows — 629 real all-pass boards have it filled in anyway
 (`specs/rawdb-import.md`) — so `declarer`/`contract` can both be
-truthy with nothing playable to solve. `d_dolar_base`/`lead_trajectory`
-never need this check explicitly: they bail out on an empty
-effective lead (no `Lead` or `Play` to fall back to, on an all-pass
-board) before ever indexing into `contract`. `lead_choices` needs
-neither `Lead` nor `Play`, so it has no such check to fall back on —
-this one has to be explicit. Aside from that, it is non-null on a
-strictly larger set of boards than `d_dolar_base`/`lead_trajectory`.
+truthy with nothing playable to solve. `lead_choices` needs neither
+`Lead` nor `Play`, so it has no empty-effective-lead bailout to fall
+back on — this check has to be explicit here. `d_dolar_base`/
+`lead_trajectory`/`board_trajectory` carry the identical explicit
+check now too (`specs/defence-statistics-frame.md`): an earlier
+version of this spec claimed they never needed it because an
+all-pass board has no `Lead`/`Play` to fall back to, but that turned
+out to be false — `Lead`/`Play` aren't reliably empty on those rows
+either, confirmed by a real crash in production use, not just a
+hypothetical. Aside from that, `lead_choices` is non-null on a
+strictly larger set of boards than `d_dolar_base`/`lead_trajectory`,
+since it needs neither of their `Lead`/`Play` inputs at all.
 
 ### How it is computed
 
