@@ -69,13 +69,16 @@ def cluster_names(pairs: list[tuple[str, str, float]]) -> list[list[str]]:
 
 def canonical_aliases(clusters: list[list[str]], frequency: dict[str, int]) -> dict[str, str]:
     """For every cluster with more than one member, the member
-    with the highest frequency.get(member, 0) becomes canonical --
-    ties broken by Python's default string ordering (the greater
-    string wins), matching this session's own real full-sweep run.
-    Returns {other_member: canonical} for every other member of
-    that cluster -- directly usable as enumerate_partnerships'
-    `aliases` argument. A cluster with only one member contributes
-    nothing (a name is never aliased to itself)."""
+    with the highest frequency.get(member, 0) becomes canonical.
+    Ties (equal frequency) are broken by `max`'s own tie-break on
+    the `(frequency, member)` key: whichever member sorts LATER
+    alphabetically wins (e.g. "Bob" over "Alice") -- not, as
+    "alphabetical" could otherwise be read, whichever sorts first.
+    This matches this session's own real full-sweep run. Returns
+    {other_member: canonical} for every other member of that
+    cluster -- directly usable as enumerate_partnerships' `aliases`
+    argument. A cluster with only one member contributes nothing (a
+    name is never aliased to itself)."""
     aliases: dict[str, str] = {}
     for members in clusters:
         if len(members) <= 1:

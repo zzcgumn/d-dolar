@@ -2,20 +2,18 @@
 """Finds likely-duplicate player names in a RawDB directory,
 clusters them, and builds both a raw and a tentatively-deduplicated
 partnership list -- see docs/dedup_sweep.md for what this writes
-and the two risks its deduped output always carries. Not part of
-the d_dolar package's public API: no `[project.scripts]` entry,
-run directly, matching scripts/build_dds3.sh's role as operational
+and the risks its deduped output always carries. Not part of the
+d_dolar package's public API: no `[project.scripts]` entry, run
+directly (after `pip install -e ".[dev]"`, this doc's own stated
+prerequisite), matching scripts/build_dds3.sh's role as operational
 tooling over the library rather than inside it."""
 
 import argparse
 import csv
 import os
-import sys
 import time
 from multiprocessing import Pool
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from d_dolar.analysis.dedup import canonical_aliases, cluster_names, name_frequencies
 from d_dolar.analysis.name_similarity import candidate_pairs, distinct_names

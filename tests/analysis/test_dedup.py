@@ -29,6 +29,9 @@ def test_cluster_names_groups_transitively_connected_pairs() -> None:
 
 
 def test_cluster_names_keeps_disjoint_pairs_in_separate_clusters() -> None:
+    # Not a true singleton (a name with zero edges) -- cluster_names
+    # only takes `pairs`, so it has no way to observe a name that
+    # never appears in any pair; this is the closest reachable case.
     from d_dolar.analysis.dedup import cluster_names
 
     pairs = [("A", "B", 0.9), ("C", "D", 0.87)]
